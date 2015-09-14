@@ -38,9 +38,23 @@ template<class T>
 CircleLL<T>::CircleLL()
 {
 	root = 0;
+	last = 0;
 }
 
 //Destructor implementation
+template<class T>
+CircleLL<T>::~CircleLL()
+{
+	int fullsize = size();
+	node * toDelete; 
+	int i = 0;
+	while(i++ < fullsize)
+	{
+		toDelete = root;
+		root = root->next;
+		delete toDelete;
+	}
+}
 
 //insert T data to index index
 template<class T>
@@ -86,7 +100,6 @@ void CircleLL<T>::Insert(int index, const T &data)
 	}
 
 	//Case 3: Want to insert at nth position
-
 	//Traverse to position
 	node * current = root;
 	int n = 0;

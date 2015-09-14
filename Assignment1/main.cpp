@@ -47,6 +47,8 @@ int main()
 	circList->RemoveAtIndex(circList->size());
 	circList->PrintLL();
 
+	delete circList;
+
 	
 	//circList->PrintAtElement(10);
 
