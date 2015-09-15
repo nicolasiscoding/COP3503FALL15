@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 //	Nicolas Fry	
 //	COP3503
@@ -37,7 +38,7 @@ class CircleLL
 template<class T>
 CircleLL<T>::CircleLL()
 {
-	root = 0;
+	root = 0;		//initialize root and last pointers to null
 	last = 0;
 }
 
@@ -45,7 +46,7 @@ CircleLL<T>::CircleLL()
 template<class T>
 CircleLL<T>::~CircleLL()
 {
-	int fullsize = size();
+	int fullsize = size();	//Figure out size and deallocate each memory address
 	node * toDelete; 
 	int i = 0;
 	while(i++ < fullsize)
@@ -64,7 +65,6 @@ void CircleLL<T>::Insert(int index, const T &data)
 	//Case 1: List is empty
 	if(root == 0)
 	{
-		std::cout << "In empty case" << std::endl;
 		root = new node;
 		root->isRoot = true;
 		root->data = data;
@@ -80,12 +80,14 @@ void CircleLL<T>::Insert(int index, const T &data)
 	node * toBeAdded = new node;
 	toBeAdded->data = data;
 
-
 	//Case 2: Want to insert at position 0 aka root
 	//    	endNode ----> root
 	//		endNode ----> tobeadded(new root) ------>  (old root)
-	if(index == 0 || index % size() == 0)
+	//made index % size() + 1 because we may want to tack on a element to the end,
+	//anything after end will loop around
+	if(index == 0 || index % size()+1 == 0)
 	{
+
 		//Point new root to original root 
 		toBeAdded->isRoot = true;
 		toBeAdded->next = root;
@@ -96,6 +98,7 @@ void CircleLL<T>::Insert(int index, const T &data)
 		//new root is toBeAdded, and tell last node to point to new root
 		root = toBeAdded;
 		last->next = root;
+
 		return;
 	}
 
@@ -108,15 +111,24 @@ void CircleLL<T>::Insert(int index, const T &data)
 		current = current->next;
 	}
 
+	//if inserting at the end, declare it to be the last element
+	if(index % size() == 0)
+	{
+		last = toBeAdded;
+	}	
+
 	//Insert it in
 	toBeAdded->next = current->next;
-	current->next = toBeAdded;		
+	current->next = toBeAdded;	
+
+	
 
 }
 
 template<class T>
 void CircleLL<T>::PrintLL() const
 {
+	
 	if(size() == 0)
 	{
 		std::cout << "No items in list" << std::endl;
@@ -127,17 +139,17 @@ void CircleLL<T>::PrintLL() const
 
 	//Create string stream
 	std::stringstream ss;
+	ss<< '[';
 	do
 	{
-		ss <<  current->data <<" ";
+		ss <<  current->data <<",";
 
 		current = current->next;
 	}
 	while(current->isRoot != true);
 
-	ss << "\n";
-
-	std::cout << ss.str() << std:: endl;
+	std::string toPrint = ss.str().substr(0, ss.str().size()-1);
+	std::cout << toPrint << "]" << std:: endl;
 }
 
 template<class T>
@@ -189,6 +201,15 @@ void CircleLL<T>::RemoveAtIndex(int index)
 		return;
 	}
 
+	//if removing last element in the list, delete root and null out first and last pointers
+	if(size() == 1)
+	{
+		delete root;
+		root = 0;
+		last = 0;
+		return;
+	}
+
 	node * toDelete;
 
 	//Case 2: Want to remove at position 0 aka root
@@ -208,16 +229,22 @@ void CircleLL<T>::RemoveAtIndex(int index)
 	}
 
 	//Case 3: Want to delete at nth position
-
 	//Traverse to position
 	node * current = root;
 	int n = 0;
+
 	while(n++ < index-1)
 	{
 		current = current->next;
 	}
 
-	//Insert it in
+	//if deleting at the end, reassign the last element
+	if(index % size()-1 == 0)
+	{
+		last = current;
+	}	
+
+	//Remove it
 	toDelete = current->next;
 	current->next = current->next->next;
 	delete toDelete;
