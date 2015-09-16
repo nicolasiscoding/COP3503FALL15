@@ -17,6 +17,7 @@ class CircleLL
 		void PrintLL() const;
 		int size() const;
 		void PrintAtElement(int index) const;
+		T getElement(int index) const;
 		void RemoveAtIndex(int index);
 		~CircleLL();
 
@@ -85,7 +86,7 @@ void CircleLL<T>::Insert(int index, const T &data)
 	//		endNode ----> tobeadded(new root) ------>  (old root)
 	//made index % size() + 1 because we may want to tack on a element to the end,
 	//anything after end will loop around
-	if(index == 0 || index % size()+1 == 0)
+	if(index == 0 || index % (size()+1) == 0)
 	{
 
 		//Point new root to original root 
@@ -173,10 +174,16 @@ int CircleLL<T>::size() const
 template<class T>
 void CircleLL<T>::PrintAtElement(int index) const
 {
+	std::cout << getElement(index) << std:: endl;
+}
+
+template<class T>
+T CircleLL<T>::getElement(int index) const
+{
 	if(size() == 0)
 	{
 		std::cout << "No items in list" << std::endl;
-		return;
+		return NULL;
 	}
 
 	node *current = root;
@@ -187,7 +194,7 @@ void CircleLL<T>::PrintAtElement(int index) const
 		current = current->next;
 	}
 
-	std::cout << current->data << std:: endl;
+	return current->data;
 }
 
 
@@ -217,6 +224,10 @@ void CircleLL<T>::RemoveAtIndex(int index)
 	//		endNode ----> indexOfRoot+1 (new root)
 	if(index == 0 || index % size() == 0)
 	{
+		//std::cout << "Deleting root!" << std:: endl;
+		//std::cout << "Last's data " << last->data << std::endl;
+		//std::cout << "Last->next's data " << last->next->data << std::endl;
+		//std::cout << "Root's data " << root->data << std::endl;
 		last->next = root->next;
 		root->next->isRoot = true;
 
@@ -235,17 +246,40 @@ void CircleLL<T>::RemoveAtIndex(int index)
 
 	while(n++ < index-1)
 	{
+		//std::cout << "Data: " << current->data << std:: endl;
 		current = current->next;
 	}
 
 	//if deleting at the end, reassign the last element
-	if(index % size()-1 == 0)
+	if((index + 1)  % size() == 0)
 	{
+		//std:: cout << "index: " << index << std:: endl;
+		//std:: cout << "size: " << size() << std:: endl;
+		//std:: cout << "index % size()-1: " << (index % size()-1) << std::endl;
+		//std::cout << "Reassigning last node to node with data "<< current->data << std::endl;
 		last = current;
 	}	
 
 	//Remove it
 	toDelete = current->next;
+	//std::cout << "Deleting node: " << toDelete->data << std::endl;
 	current->next = current->next->next;
 	delete toDelete;
 }
+
+/*
+19
+I 1 0
+I 2 1
+I 3 2
+I 4 3
+I 5 4
+I 6 5
+I 7 6 
+I 8 7 
+I 9 8
+I 10 9
+I 0 2
+D 5
+J 3 2 34 23 22
+*/

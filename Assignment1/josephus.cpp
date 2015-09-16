@@ -66,14 +66,15 @@ int main()
 
 			//figure out 'n', or number of inputs before the head
 			int numOfInputs = stringToInt(command.substr(0, command.find(' ')));
-			cout << "Num of inputs: "<< numOfInputs<< endl;;
+			//cout << "Num of inputs: "<< numOfInputs<< endl;;
 
 			//move string to next parameters to parse
 			command = command.substr(command.find(' ') + 1);
 
-			//parse k elements to be removed 
-			int kElementsRemoved = stringToInt(command.substr(0, command.find(' ')));
-			cout << "K elements removed: "<< kElementsRemoved<< endl;;
+			//parse kth elements to be removed 
+			int kElementToBeRemoved = stringToInt(command.substr(0, command.find(' ')));
+			//kElementToBeRemoved+= -1; // because the index is always one less then the actual number
+			//cout << "Every Kth element will be removed: "<< kElementToBeRemoved<< "\n" << endl;;
 
 			int index = 0;
 
@@ -83,10 +84,27 @@ int main()
 				//move string to next parameters
 				command = command.substr(command.find(' ') + 1);
 				LinkedList->Insert(0, command.substr(0, command.find(' ')));
+			}
+
+
+			//1 2 3 4 5 6 7 8 //k = 2
+			//1 3 5 6 7 8   
+			LinkedList->PrintLL();
+			index = kElementToBeRemoved-1;
+			std::stringstream ss;
+			ss<< '[';
+
+			while(LinkedList->size() != 1)
+			{
+				//cout << "Kth element at position will be removed " << index << endl;
+				ss << LinkedList->getElement(index) << ",";
+				LinkedList->RemoveAtIndex(index);
+				index= index + kElementToBeRemoved -1;
 				LinkedList->PrintLL();
 			}
 
-			LinkedList->PrintLL();
+			string toPrint = ss.str().substr(0, ss.str().size()-1);
+			cout << toPrint << "]" << endl;
 
 		}
 		else
