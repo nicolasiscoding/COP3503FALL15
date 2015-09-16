@@ -17,8 +17,10 @@ class CircleLL
 		void PrintLL() const;
 		int size() const;
 		void PrintAtElement(int index) const;
-		T getElement(int index) const;
+		T getElementValue(int index) const;
+		typename CircleLL<T>::node* getElement(int index) const;
 		void RemoveAtIndex(int index);
+		bool isRoot(int index) const;
 		~CircleLL();
 
 	private:
@@ -103,6 +105,9 @@ void CircleLL<T>::Insert(int index, const T &data)
 		return;
 	}
 
+	//we know at this point that the node will not be root,
+	toBeAdded->isRoot = false;
+
 	//Case 3: Want to insert at nth position
 	//Traverse to position
 	node * current = root;
@@ -174,11 +179,17 @@ int CircleLL<T>::size() const
 template<class T>
 void CircleLL<T>::PrintAtElement(int index) const
 {
-	std::cout << getElement(index) << std:: endl;
+	std::cout << getElementValue(index) << std::endl;
 }
 
 template<class T>
-T CircleLL<T>::getElement(int index) const
+T CircleLL<T>::getElementValue(int index) const
+{
+	return getElement(index)->data;
+}
+
+template<class T>
+typename CircleLL<T>::node* CircleLL<T>::getElement(int index) const
 {
 	if(size() == 0)
 	{
@@ -194,7 +205,7 @@ T CircleLL<T>::getElement(int index) const
 		current = current->next;
 	}
 
-	return current->data;
+	return current;
 }
 
 
@@ -265,6 +276,12 @@ void CircleLL<T>::RemoveAtIndex(int index)
 	//std::cout << "Deleting node: " << toDelete->data << std::endl;
 	current->next = current->next->next;
 	delete toDelete;
+}
+
+template<class T>
+bool CircleLL<T>::isRoot(int index) const
+{
+	return getElement(index)->isRoot;
 }
 
 /*
