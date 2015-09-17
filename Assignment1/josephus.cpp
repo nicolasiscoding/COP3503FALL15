@@ -89,18 +89,41 @@ int main()
 
 			//1 2 3 4 5 6 7 8 //k = 2
 			//1 3 5 6 7 8   
-			LinkedList->PrintLL();
-			index = kElementToBeRemoved-1;
+			//LinkedList->PrintLL();
 			std::stringstream ss;
 			ss<< '[';
 
-			while(LinkedList->size() != 1)
+			//Tell Iterator to go to the beginning position
+			LinkedList->toBeginIter();
+			//move us to the first position of removal
+			for(int i = 0; i < (kElementToBeRemoved - 1); i++)
+				{
+					LinkedList->moveForward();
+				}
+
+
+			while(LinkedList->size() != 0)
 			{
-				//cout << "Kth element at position will be removed " << index << endl;
-				ss << LinkedList->getElement(index) << ",";
+
+				
+				//LinkedList->PrintLL();
+				/*cout << "Index to be removed " << index << endl;
+				cout << "Element to be removed " << LinkedList->getElementValue(index) << endl;
+				ss << LinkedList->getElementValue(index) << ',';
 				LinkedList->RemoveAtIndex(index);
-				index= index + kElementToBeRemoved -1;
-				LinkedList->PrintLL();
+				index = index + (kElementToBeRemoved-1);
+
+				if(index > (LinkedList->size()-1))
+				{
+					index = --startindex;
+				}
+
+				*/
+				ss << LinkedList->getElementValue(LinkedList->getIterPos()) << ',';
+				//removes element at psuedo iterator postion, and moves psuedo iterator by a offset of kElementToBeRemoved
+				LinkedList->removeAtIter(kElementToBeRemoved);
+
+
 			}
 
 			string toPrint = ss.str().substr(0, ss.str().size()-1);

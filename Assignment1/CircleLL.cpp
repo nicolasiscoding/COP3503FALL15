@@ -6,7 +6,7 @@
 //	COP3503
 //	Programming Assignment 1
 //	Circular Linked List
-//
+//	Intended to be used with the Josephus problem
 
 template<class T>
 class CircleLL
@@ -23,6 +23,13 @@ class CircleLL
 		bool isRoot(int index) const;
 		~CircleLL();
 
+		//psuedoIteratorFunctions
+		void toBeginIter();
+		void toEndIter();
+		bool moveForward(); //returns true if passed the beginning of the circle
+		int getIterPos();
+		void removeAtIter(int offset);
+
 	private:
 		struct node
 		{
@@ -34,6 +41,10 @@ class CircleLL
 
 		node *root;
 		node *last;
+
+		//to Solve Josephus problem, I am creating a sudo Iterator to go ahead and move positions.
+		node *psuedoIterator;
+		int psuedoIteratorIndex;
 };
 
 
@@ -43,6 +54,8 @@ CircleLL<T>::CircleLL()
 {
 	root = 0;		//initialize root and last pointers to null
 	last = 0;
+	psuedoIterator = 0;
+	psuedoIteratorIndex = -1;
 }
 
 //Destructor implementation
@@ -158,6 +171,79 @@ void CircleLL<T>::PrintLL() const
 	std::cout << toPrint << "]" << std:: endl;
 }
 
+//PsuedoIterator functions
+template<class T>
+void CircleLL<T>::toBeginIter()
+{
+	psuedoIteratorIndex = 0;
+	psuedoIterator = root;
+}
+
+template<class T>
+void CircleLL<T>::toEndIter()
+{
+	psuedoIteratorIndex = size()-1;
+	psuedoIterator = last;
+}
+
+template<class T>
+bool CircleLL<T>::moveForward()
+{
+	psuedoIterator=psuedoIterator->next;
+
+	if(psuedoIterator == root)
+	{
+		psuedoIteratorIndex = 0;
+		return true;
+	}
+	else
+	{
+		psuedoIteratorIndex++;
+	}
+	return false;
+}
+
+template<class T>
+int CircleLL<T>::getIterPos()
+{
+	return psuedoIteratorIndex;
+}
+
+//moves iterator offset forward, then deletes the position it was at
+template<class T>
+//0, 1, 2, 3, 4
+//		^
+//0, 1, 2, 3, 4
+//		%	  ^
+//
+//0, 1, 3, 4
+//		   ^	
+void CircleLL<T>::removeAtIter(int offset)
+{
+	node * toDelete = psuedoIterator;
+	int indexOfDelete = getIterPos();
+	bool passedBeginningOfCircle = false;
+	for(int i = 0; i < offset; i++)
+	{
+		if(moveForward())
+		{
+			passedBeginningOfCircle = true;
+		}
+	}
+
+	
+	RemoveAtIndex(indexOfDelete);
+
+	//account for removal of element by subtracting one
+	if(!passedBeginningOfCircle)
+	{
+		psuedoIteratorIndex--;
+	}
+
+}
+
+
+
 template<class T>
 int CircleLL<T>::size() const
 {
@@ -207,7 +293,6 @@ typename CircleLL<T>::node* CircleLL<T>::getElement(int index) const
 
 	return current;
 }
-
 
 template<class T>
 void CircleLL<T>::RemoveAtIndex(int index)
