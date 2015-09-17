@@ -48,7 +48,7 @@ int main()
 			//find position to insert to
 			position = stringToInt(command);
 
-			if(position < 0)
+			if(position < 0 || position > LinkedList->size())
 			{
 				cout << "Error: Not a valid position to input." << endl;
 				continue;
@@ -139,7 +139,7 @@ int main()
 			while(LinkedList->size() != 1)
 			{
 				//DEBUG
-				//LinkedList->PrintLL();
+				LinkedList->PrintLL();
 
 				//insert Element into stringstream that is about to be removed
 				ss << LinkedList->getElementValue(LinkedList->getIterPos()) << ',';
