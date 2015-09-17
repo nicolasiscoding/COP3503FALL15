@@ -97,6 +97,7 @@ void CircleLL<T>::Insert(int index, const T &data)
 	toBeAdded->data = data;
 
 	//Case 2: Want to insert at position 0 aka root
+	//Example
 	//    	endNode ----> root
 	//		endNode ----> tobeadded(new root) ------>  (old root)
 	//made index % size() + 1 because we may want to tack on a element to the end,
@@ -138,16 +139,13 @@ void CircleLL<T>::Insert(int index, const T &data)
 
 	//Insert it in
 	toBeAdded->next = current->next;
+	//std::cout << "toBeAdded->next->Data" << toBeAdded->next->data << std::endl;
 	current->next = toBeAdded;	
-
-	
-
 }
 
 template<class T>
 void CircleLL<T>::PrintLL() const
 {
-	
 	if(size() == 0)
 	{
 		std::cout << "No items in list" << std::endl;
@@ -162,7 +160,6 @@ void CircleLL<T>::PrintLL() const
 	do
 	{
 		ss <<  current->data <<",";
-
 		current = current->next;
 	}
 	while(current->isRoot != true);
@@ -171,7 +168,7 @@ void CircleLL<T>::PrintLL() const
 	std::cout << toPrint << "]" << std:: endl;
 }
 
-//PsuedoIterator functions
+//BEGIN 		PsuedoIterator functions
 template<class T>
 void CircleLL<T>::toBeginIter()
 {
@@ -186,6 +183,7 @@ void CircleLL<T>::toEndIter()
 	psuedoIterator = last;
 }
 
+//Returns true when index is root (meaning you crossed over and are back to the root)
 template<class T>
 bool CircleLL<T>::moveForward()
 {
@@ -211,19 +209,46 @@ int CircleLL<T>::getIterPos()
 
 //moves iterator offset forward, then deletes the position it was at
 template<class T>
+//Example:
 //0, 1, 2, 3, 4
 //		^
 //0, 1, 2, 3, 4
 //		%	  ^
-//
 //0, 1, 3, 4
 //		   ^	
-void CircleLL<T>::removeAtIter(int offset)
+void CircleLL<T>::removeAtIter(int offset = 1)
 {
-	node * toDelete = psuedoIterator;
 	int indexOfDelete = getIterPos();
 	bool passedBeginningOfCircle = false;
-	for(int i = 0; i < offset; i++)
+	bool hasBeenRemoved = false;
+
+	//Case if size == 1
+	if(size() == 1)
+	{
+		psuedoIterator = 0;
+		RemoveAtIndex(0);
+		return;
+	}
+
+	//Case if size == 2
+	if(size() == 2)
+	{
+		psuedoIterator = psuedoIterator->next;
+		RemoveAtIndex(indexOfDelete);
+		return;
+	}
+
+	//General Case
+	//
+	//move forward once then delete index (to prevent segfaults)
+	if(moveForward())
+	{
+		passedBeginningOfCircle = true;
+	}
+	RemoveAtIndex(indexOfDelete);
+
+	//continue moving to new offset location - 1
+	for(int i = 0; i < offset-1; i++)
 	{
 		if(moveForward())
 		{
@@ -231,18 +256,13 @@ void CircleLL<T>::removeAtIter(int offset)
 		}
 	}
 
-	
-	RemoveAtIndex(indexOfDelete);
-
 	//account for removal of element by subtracting one
 	if(!passedBeginningOfCircle)
 	{
 		psuedoIteratorIndex--;
 	}
-
 }
-
-
+//END 		PsuedoIterator functions
 
 template<class T>
 int CircleLL<T>::size() const
@@ -283,6 +303,12 @@ typename CircleLL<T>::node* CircleLL<T>::getElement(int index) const
 		return NULL;
 	}
 
+	if(index < 0)
+	{
+		std::cout << "Out of range error" << std::endl;
+		return NULL;
+	}
+
 	node *current = root;
 
 	int i = 0;
@@ -320,18 +346,13 @@ void CircleLL<T>::RemoveAtIndex(int index)
 	//		endNode ----> indexOfRoot+1 (new root)
 	if(index == 0 || index % size() == 0)
 	{
-		//std::cout << "Deleting root!" << std:: endl;
-		//std::cout << "Last's data " << last->data << std::endl;
-		//std::cout << "Last->next's data " << last->next->data << std::endl;
-		//std::cout << "Root's data " << root->data << std::endl;
 		last->next = root->next;
 		root->next->isRoot = true;
 
-		//store root in temp pointer which will be deleted
+		//store root in temp pointer 'toDelete' which will be deleted
 		toDelete = root;
 		root = root->next;
 		delete toDelete;
-
 		return;
 	}
 
@@ -342,23 +363,17 @@ void CircleLL<T>::RemoveAtIndex(int index)
 
 	while(n++ < index-1)
 	{
-		//std::cout << "Data: " << current->data << std:: endl;
 		current = current->next;
 	}
 
 	//if deleting at the end, reassign the last element
 	if((index + 1)  % size() == 0)
 	{
-		//std:: cout << "index: " << index << std:: endl;
-		//std:: cout << "size: " << size() << std:: endl;
-		//std:: cout << "index % size()-1: " << (index % size()-1) << std::endl;
-		//std::cout << "Reassigning last node to node with data "<< current->data << std::endl;
 		last = current;
 	}	
 
 	//Remove it
 	toDelete = current->next;
-	//std::cout << "Deleting node: " << toDelete->data << std::endl;
 	current->next = current->next->next;
 	delete toDelete;
 }
@@ -368,20 +383,3 @@ bool CircleLL<T>::isRoot(int index) const
 {
 	return getElement(index)->isRoot;
 }
-
-/*
-19
-I 1 0
-I 2 1
-I 3 2
-I 4 3
-I 5 4
-I 6 5
-I 7 6 
-I 8 7 
-I 9 8
-I 10 9
-I 0 2
-D 5
-J 3 2 34 23 22
-*/

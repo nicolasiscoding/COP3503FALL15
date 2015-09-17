@@ -3,14 +3,19 @@
 #include "CircleLL.cpp"
 using namespace std;
 
+//Nicolas Fry
+//COP3530
+//Assinment 1
+//Josephus Problem
+
 int stringToInt(string str)
 {
-	int ret = atoi(str.c_str());
-	return ret;
+	return atoi(str.c_str());
 }
 
 int main()
-{
+{https://www.facebook.com/jeffery.zou.1?fref=ts
+	//made list a list of strings so user can input whatever they want. 
 	CircleLL<string> *LinkedList = new CircleLL<string>();
 
 	
@@ -25,6 +30,7 @@ int main()
 		string command;
 		getline(cin,command);
 		
+		//Declare position to be used in later statements
 		int position;
 
 		//Insert
@@ -35,46 +41,70 @@ int main()
 			
 			//Find element to insert
 			string element = command.substr(0,command.find(' '));
-			
+	
+			//move string to next parameters to pars
 			command = command.substr(command.find(' ') + 1);
 
 			//find position to insert to
 			position = stringToInt(command);
 
+			if(position < 0)
+			{
+				cout << "Error: Not a valid position to input." << endl;
+				continue;
+			}
+
 			LinkedList->Insert(position, element);			
 		}
+
+		//Delete
 		else if(command[0] == 'D' || command[0] == 'd')
 		{
 			command = command.substr(2);
 			LinkedList->RemoveAtIndex(stringToInt(command));
 		}
-		//print the element at position i  
+		
+		//Print
 		else if(command[0] == 'P' || command[0] == 'p')
 		{
 			command = command.substr(2);
 			position = stringToInt(command);
+
+			if(position > (LinkedList->size()-1) || position < 0)
+			{
+				cout << "Out of range error" << endl;
+				continue;
+			}
+
 			LinkedList->PrintAtElement(position);
 		}
-		//print entire list
+
+		//Print Entire List
 		else if(command[0] == 'S' || command[0] == 's')
 		{
 			LinkedList->PrintLL();
 		}
+
+		//Josephus
 		else if(command[0] == 'J' || command[0] == 'j')
 		{
 			command = command.substr(2);
 
 			//figure out 'n', or number of inputs before the head
 			int numOfInputs = stringToInt(command.substr(0, command.find(' ')));
-			//cout << "Num of inputs: "<< numOfInputs<< endl;;
 
 			//move string to next parameters to parse
 			command = command.substr(command.find(' ') + 1);
 
-			//parse kth elements to be removed 
-			int kElementToBeRemoved = stringToInt(command.substr(0, command.find(' ')));
-			//kElementToBeRemoved+= -1; // because the index is always one less then the actual number
-			//cout << "Every Kth element will be removed: "<< kElementToBeRemoved<< "\n" << endl;;
+			//parse kth element to be removed 
+			int kthElementToBeRemoved = stringToInt(command.substr(0, command.find(' ')));
+
+			//error handling of kthElement
+			if(kthElementToBeRemoved < 1)
+			{
+				cout << "Error: Kth Element To Be Removed must be greater than or equal to one." << endl;
+				continue;
+			}
 
 			int index = 0;
 
@@ -86,57 +116,54 @@ int main()
 				LinkedList->Insert(0, command.substr(0, command.find(' ')));
 			}
 
+			if(LinkedList->size() == 0)
+			{
+				LinkedList->PrintLL();
+				continue;
+			}
 
-			//1 2 3 4 5 6 7 8 //k = 2
-			//1 3 5 6 7 8   
-			//LinkedList->PrintLL();
+			//Declare a string stream  #efficiency
 			std::stringstream ss;
 			ss<< '[';
 
-			//Tell Iterator to go to the beginning position
+			//Tell 'psuedo' Iterator to go to the root position
 			LinkedList->toBeginIter();
-			//move us to the first position of removal
-			for(int i = 0; i < (kElementToBeRemoved - 1); i++)
+
+			//move us to the first kthElemeentToBeRemoved 
+			for(int i = 0; i < (kthElementToBeRemoved - 1); i++)
 				{
 					LinkedList->moveForward();
 				}
 
-
 			while(LinkedList->size() != 0)
 			{
-
-				
+				//DEBUG
 				//LinkedList->PrintLL();
-				/*cout << "Index to be removed " << index << endl;
-				cout << "Element to be removed " << LinkedList->getElementValue(index) << endl;
-				ss << LinkedList->getElementValue(index) << ',';
-				LinkedList->RemoveAtIndex(index);
-				index = index + (kElementToBeRemoved-1);
 
-				if(index > (LinkedList->size()-1))
-				{
-					index = --startindex;
-				}
-
-				*/
+				//insert Element into stringstream that is about to be removed
 				ss << LinkedList->getElementValue(LinkedList->getIterPos()) << ',';
-				//removes element at psuedo iterator postion, and moves psuedo iterator by a offset of kElementToBeRemoved
-				LinkedList->removeAtIter(kElementToBeRemoved);
 
+				//removes element at psuedo iterator postion, and moves psuedo iterator by a offset of kthElementToBeRemoved
+				LinkedList->removeAtIter(kthElementToBeRemoved);
 
+				//proceed until the last rebel has been smitten
 			}
 
+			//make the string nice and pretty
 			string toPrint = ss.str().substr(0, ss.str().size()-1);
 			cout << toPrint << "]" << endl;
 
 		}
+
+		//input is bad, redo input
 		else
 		{
-			//exception handling redo command
-			cout << "Bad input, please redo command";
-			i--;
+			//exception handling 
+			cout << "Error: Bad input" << endl;
+			continue;
 		}
 	}
 
+	//program is done, call destructor
 	delete LinkedList;
 }

@@ -1,6 +1,9 @@
 #include <iostream>
 #include "CircleLL.cpp"
 
+//This file was used as a sandbox to test the CircleLL class
+//Once I felt it was good enough to use, I tested it using my Test*.Txt
+
 int main()
 {
 	CircleLL<int> * circList = new CircleLL<int>();
@@ -48,8 +51,5 @@ int main()
 	circList->PrintLL();
 
 	delete circList;
-
-	
-	//circList->PrintAtElement(10);
 
 }
