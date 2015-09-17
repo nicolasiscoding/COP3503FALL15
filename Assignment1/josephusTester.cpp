@@ -135,7 +135,8 @@ int main()
 					LinkedList->moveForward();
 				}
 
-			while(LinkedList->size() != 0)
+			//After announcement for leaving last element in list, I included it in the list
+			while(LinkedList->size() != 1)
 			{
 				//DEBUG
 				//LinkedList->PrintLL();
@@ -146,13 +147,13 @@ int main()
 				//removes element at psuedo iterator postion, and moves psuedo iterator by a offset of kthElementToBeRemoved
 				LinkedList->removeAtIter(kthElementToBeRemoved);
 
-				//proceed until the last rebel has been smitten
+				//proceed until the last rebel has is standing
 			}
 
-			//make the string nice and pretty
-			string toPrint = ss.str().substr(0, ss.str().size()-1);
-			cout << toPrint << "]" << endl;
+			//put last person in output
+			ss << LinkedList->getElementValue(LinkedList->getIterPos());
 
+			cout << ss.str() << "]" << endl;
 		}
 
 		//input is bad, redo input
