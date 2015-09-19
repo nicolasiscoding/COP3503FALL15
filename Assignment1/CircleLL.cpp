@@ -216,11 +216,17 @@ template<class T>
 //		%	  ^
 //0, 1, 3, 4
 //		   ^	
-void CircleLL<T>::removeAtIter(int offset = 1)
+void CircleLL<T>::removeAtIter(int offset)
 {
 	int indexOfDelete = getIterPos();
 	bool passedBeginningOfCircle = false;
 	bool hasBeenRemoved = false;
+
+	if(offset < 1)
+	{
+		std:: cout << "Invalid offset" << std:: endl;
+		return;
+	}
 
 	//Case if size == 1
 	if(size() == 1)
