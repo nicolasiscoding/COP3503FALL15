@@ -61,7 +61,15 @@ int main()
 		else if(command[0] == 'D' || command[0] == 'd')
 		{
 			command = command.substr(2);
-			LinkedList->RemoveAtIndex(stringToInt(command));
+			int index = stringToInt(command);
+
+			if(index >= LinkedList->size() || index < 0)
+			{
+				cout << "Error: Not a valid position to delete" << endl;
+				continue;
+			}
+
+			LinkedList->RemoveAtIndex(index);
 		}
 		
 		//Print
@@ -139,7 +147,7 @@ int main()
 			while(LinkedList->size() != 1)
 			{
 				//DEBUG
-				LinkedList->PrintLL();
+				//LinkedList->PrintLL();
 
 				//insert Element into stringstream that is about to be removed
 				ss << LinkedList->getElementValue(LinkedList->getIterPos()) << ',';
