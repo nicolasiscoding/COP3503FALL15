@@ -1,0 +1,15 @@
+CC = g++
+
+all:josephus
+
+josephusEXEC: josephus.o CircleLL.o
+	$(CC) -o josephusEXEC josephus.o CircleLL.o
+
+josephus.o: josephus.cpp
+		$(CC) -c josephus.cpp
+
+CircleLL.o: CircleLL.cpp
+		$(CC) -c CircleLL.cpp
+
+clean:
+	rm *o josephus
