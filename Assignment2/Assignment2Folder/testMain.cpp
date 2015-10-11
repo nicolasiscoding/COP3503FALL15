@@ -7,6 +7,8 @@ int main()
 
 	SparseMatrix<bool>* bSp = new SparseMatrix<bool>();
 
+	SparseMatrix<int>* cSp = new SparseMatrix<int>();
+
 	iSp->read();
 	iSp->print();
 
@@ -14,7 +16,13 @@ int main()
 	bSp->print();
 
 	std::cout<< iSp->getElementAt(1, 1) << std::endl;
-	//iSp->mask(bSp);
+
+	std::cout << "\n"<< std::endl;
+	iSp->mask(bSp, cSp);
+
+
+	std::cout << "Printing masked C Matrix" << std::endl;
+	cSp->print();
 
 	// delete sp;
 }
