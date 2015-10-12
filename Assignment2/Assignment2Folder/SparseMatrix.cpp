@@ -47,6 +47,7 @@ class SparseMatrix
 		};
 
 		void privateInsert(int row, int col, T val);
+		void intializeAllRowPointers();
 		int numCols;
 		int numRows;
 		node** rows;
@@ -79,20 +80,32 @@ SparseMatrix<T>::~SparseMatrix()
 }
 
 template<class T>
-void SparseMatrix<T>::print() const
+void SparseMatrix<T>::intializeAllRowPointers()
 {
-	std::cout << "\n\nPrinting method" << std::endl;
-	std::cout << "rows = " << numRows << " columns = " << numCols << "\n" << std::endl;
-
 	for(int i = 0; i < numRows; i++)
 	{
+		rows[i] = 0;
+	}
+}
+
+template<class T>
+void SparseMatrix<T>::print() const
+{
+	//std::cout << "\n\nPrinting method" << std::endl;
+	std::cout << "rows = " << numRows << " columns = " << numCols << "\n" << std::endl;
+
+
+	std::stringstream ss; 
+	for(int i = 0; i < numRows; i++)
+	{
+		// std::cout << "row " << i+1 <<  "row points to: " << rows[i] << std::endl;
 		if(rows[i] == 0)
 		{
-			std::cout << "Row " << i+1 << " is empty skipping on print" << std::endl;
+			// std::cout << "Row " << i+1 << " is empty skipping on print" << std::endl;
 			continue;
 		}
 
-		std::cout<< "row " << (i+1) <<"[";
+		ss<< "row " << (i+1) <<"[";
 
 		//node** rowPtr = rows[i];
 		node* current = rows[i];
@@ -100,12 +113,16 @@ void SparseMatrix<T>::print() const
  		while(current != 0)
 		{
 			//std::cout << "Pointer address " << current;
-			std::cout<< "col: " << current->column << " value: " << current->data << ", ";
+			ss<< "col: " << current->column << " value: " << current->data << ", ";
 			current = current->next;
 		}
 
-		std::cout << "]" << std::endl;
+		std::string toPrint = ss.str().substr(0, ss.str().size()-2);
+		std::cout << toPrint << "]" << std::endl;;
+		ss.str(std::string());
 	}
+
+
 }
 
 /* A nice illustration of how I stored everything
@@ -116,7 +133,7 @@ node ** - new node**[numofrows]
 	 ||
 	\  /
 	 \/
-|node*  | ---> new node (colNum, Value) -> new node(ColNum, Value)
+|node*  | = new node (colNum, Value) -> new node(ColNum, Value)
 |node*  |
 |node*  |
 |node*  |
@@ -147,6 +164,7 @@ void SparseMatrix<T>::read()
 
 	//double pointer to nodes = new *node[Num of rows]
 	rows = new node*[numRows];
+	intializeAllRowPointers();
 
 	std::cout << "\n";
 	
@@ -162,12 +180,13 @@ void SparseMatrix<T>::read()
 		//if the number of terms in the row is zero, continue through the loop
 		if(numTerms == 0)
 		{
+			rows[i] = 0;
 			continue;
 		}
 
 		if(numTerms > numCols)
 		{
-			std::cout << "Error more terms then columns" << std::endl;
+			std::cout << "Error more terms then columns\n" << std::endl;
 			continue;
 		}
 
@@ -205,14 +224,14 @@ void SparseMatrix<T>::read()
 			//column parse to make sure that we are not putting an invalid entry in the matrix.
 			if(colNum > numCols || colNum < 0)
 			{
-				std::cout << "Error " << colNum << " is an invalid column. Entry col:" << colNum << ", value: " << value << " will be skipped." << std::endl;
+				std::cout << "Error " << colNum << " is an invalid column. Entry col:" << colNum << ", value: " << value << " will be skipped.\n" << std::endl;
 				numTerms--;
 				continue;
 			}
 
 			if(getElementAt((i+1),colNum) != 0)
 			{
-				std::cout << "Error, value is already at column " << colNum << std::endl;
+				std::cout << "Error, value is already at column " << colNum << "\n"<< std::endl;
 				numTerms--;
 				continue;
 			}
@@ -229,7 +248,6 @@ void SparseMatrix<T>::read()
 			//first case where there are no nodes in the row
 			if(current == 0)
 			{
-				std::cout << "Inserting beginning node " << std::endl;
 				current = new node(colNum, value);
 				current->next = 0;
 				//current = current->next;
@@ -266,11 +284,11 @@ T SparseMatrix<T>::parseValue(std::string str)
 
 	if(type.compare("b") == 0)
 	{
-		std::cout << "Error, " << val << " is not a valid value for a boolean matrix" << std::endl;
+		std::cout << "Error, " << val << " is not a valid value for a boolean matrix\n" << std::endl;
 		return 0;
 	}
 
-	std::cout << "Error encountered in parseValue function" << std::endl;
+	std::cout << "Error encountered in parseValue function\n" << std::endl;
 	return 0;
 }
 
@@ -290,47 +308,56 @@ template<class T>
 void SparseMatrix<T>::privateInsert(int row, int col, T val)
 {
 	//error handling
-
-	//std::cout << "\nprivate insert method" << std::endl;
-
 	if(row > numRows || col > numCols || row < 1 || col < 1)
 	{
-		std::cout << "Error, can not insert element at " << row << ", " << col << std::endl;
+		std::cout << "Error, can not insert element at " << row << ", " << col << "\n"<< std::endl;
 		return;
 	}
 
-	node *conductor = rows[row-1];
-	//std::cout << "Conductor's address: " << conductor << std::endl;
-	bool found = false;
-	while(conductor != 0)
-	{
-		std::cout << "Inside while loop" << std::endl;
-		std:: cout << "Conductor's address: " << conductor << std::endl;
-		if(conductor->column == col)
-		{
-			std::cout << "Found a column that is similar" << std::endl;
-			found = true;
-			break;
-		}
-
-		conductor = conductor->next;
-	}
-
-	if(found)
-	{
-		std::cout << "Element exists, can not overwrite.";
-		return;
-	}
-
-
-	conductor = new node(col, val);
+	std::cout<< "Inserting at " << row << " " << col << " val: " << val << std::endl;
 
 	//if inserting at beginning of rows, make sure we tie row in
 	if(rows[row-1] == 0)
 	{
-		rows[row-1] = conductor;
+		std::cout << "beginning of row case " << std::endl;
+		rows[row-1] = new node(col, val);
+		rows[row-1]->next = 0;
 	}
-	conductor->next = 0;
+
+	node *conductor = rows[row-1];
+	while(conductor->next != 0)
+	{
+		//debug
+		std::cout << "Conductor Pointer is " << conductor << std::endl;
+
+		if(conductor->column == col)
+		{
+			std::cout << "Element exists, can not overwrite.\n\n" << std::endl;
+			return;
+		}
+		conductor = conductor->next;
+	}
+
+	if(conductor->column == col)
+	{
+		std::cout << "Element exists, can not overwrite.\n\n" << std::endl;
+		return;
+	}
+
+	// std::cout<< "Conductor Pointer is " << conductor << std::endl;
+	conductor->next = new node(col, val);
+	// std::cout << "Conductor Pointer is " << conductor << std::endl;
+	conductor->next->next = 0;
+	
+
+	//temp debug
+	std::cout << "\nQuickPrintRow\n" <<std::endl;
+	node * print = rows[row-1];
+	while(print!= 0)
+	{
+		std::cout << print->data << std::endl;
+		print = print->next;
+	}
 }
 
 template<class T>
@@ -339,7 +366,7 @@ T SparseMatrix<T>::getElementAt(int row, int col)
 	//error handling
 	if(row > numRows || col > numCols || row < 1 || col < 1)
 	{
-		std::cout << "Error, can not retrieve element at " << row << ", " << col << std::endl;
+		std::cout << "Error, can not retrieve element at " << row << ", " << col <<"\n"<< std::endl;
 		return 0;
 	}
 
@@ -371,23 +398,23 @@ void SparseMatrix<T>::mask(SparseMatrix<bool> *bMatrix, SparseMatrix<T> *matrixT
 	//not of same dimension case
 	if(this->numRows != bMatrix->getNumberOfRows() || this->numCols != bMatrix->getNumberOfColumns())
 	{
-		std::cout << "Both Matrixes are not of same dimension" << std::endl;
+		std::cout << "Both Matrixes are not of same dimension\n" << std::endl;
 		return;
 	}
 
 	if(matrixToMask->numRows != 0 || matrixToMask->numCols !=0)
 	{
-		std::cout << "Error, the matrix to mask onto is not empty, can not mask" << std::endl;
+		std::cout << "Error, the matrix to mask onto is not empty, can not mask\n" << std::endl;
 	}
 
 	//instanciate values in maskedMatrix
 	matrixToMask->numRows = this->numRows;
 	matrixToMask->numCols = this->numCols;
 	matrixToMask->rows = new node*[numRows];
+	matrixToMask->intializeAllRowPointers();
 
 	// std::cout << "Masked Matrix rows: " << matrixToMask->numRows << " Masked Matrix Cols: " << matrixToMask ->numCols << std::endl;
 
-	//for each row in bool and this
 	for(int i = 1; i <= numRows; i++)
 	{
 		for(int j = 1; j <= numCols; j++)
@@ -400,33 +427,15 @@ void SparseMatrix<T>::mask(SparseMatrix<bool> *bMatrix, SparseMatrix<T> *matrixT
 
 			if(Ival == 0 || bval == 0)
 			{
+				// std::cout << "Value is zero, skipping\n" << std::endl;
 				continue;
 			}
 
 			matrixToMask->privateInsert(i, j, Ival);
-			// std::cout << "Mask complete for row " << i << " col " << j << std::endl;
+			std::cout << "Mask complete for row " << i << " col " << j << std::endl;
 
 		}
 	}
-	/*
-
-	//Get boolean matrix row[i]
-		node* boolRow = bMatrix->rows[i];
-
-		//if bool matrix row[i] is nothing, safely delete everything in this->row[i]
-		if(boolRow == 0)
-		{
-			std::cout << "boolRow doesnt exist, calling delete" << std::endl;
-		}
-
-		//if this matrix has nothing in the row[i], continue onto next row
-
-		//look at first column in bool row[i] any column in this row[i] that is less then that, delete those nodes
-
-		//if the node's col after deleting/moving is the same as bool's col, do the masking operation
-
-		//if col after/deleting/moving is not the same as bool,move bool one over (if possible if not delete entire row) and go to if statement above for masking
-	
-	*/
-
 }
+
+

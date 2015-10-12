@@ -9,19 +9,23 @@ int main()
 
 	SparseMatrix<int>* cSp = new SparseMatrix<int>();
 
-	iSp->read();
+	std::cout << "Reading int Matrix\n" <<std::endl;
+	iSp->read();	
+	std::cout << "\nPrinting int Matrix\n" << std::endl;
 	iSp->print();
 
+	std::cout << "\nReading bool Matrix\n" <<std::endl;
 	bSp->read();
+	std::cout << "\nPrinting bool Matrix\n" << std::endl;
 	bSp->print();
 
-	std::cout<< iSp->getElementAt(1, 1) << std::endl;
+	// std::cout<< iSp->getElementAt(1, 1) << std::endl;
 
-	std::cout << "\n"<< std::endl;
+	std::cout << "\nMasking int matrix with bool matrix"<< std::endl;
 	iSp->mask(bSp, cSp);
 
 
-	std::cout << "Printing masked C Matrix" << std::endl;
+	std::cout << "\nPrinting masked C Matrix" << std::endl;
 	cSp->print();
 
 	// delete sp;
