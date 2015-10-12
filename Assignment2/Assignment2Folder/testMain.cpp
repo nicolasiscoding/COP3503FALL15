@@ -3,30 +3,40 @@
 
 int main()
 {
-	SparseMatrix<int>* iSp = new SparseMatrix<int>();
+	SparseMatrix<int>* a = new SparseMatrix<int>();
 
-	SparseMatrix<bool>* bSp = new SparseMatrix<bool>();
+	SparseMatrix<bool>* b = new SparseMatrix<bool>();
 
-	SparseMatrix<int>* cSp = new SparseMatrix<int>();
+	SparseMatrix<int>* c = new SparseMatrix<int>();
 
-	std::cout << "Reading int Matrix\n" <<std::endl;
-	iSp->read();	
-	std::cout << "\nPrinting int Matrix\n" << std::endl;
-	iSp->print();
+	std::cout << "Reading Matrix A" <<std::endl;
+	a->read();	
 
-	std::cout << "\nReading bool Matrix\n" <<std::endl;
-	bSp->read();
-	std::cout << "\nPrinting bool Matrix\n" << std::endl;
-	bSp->print();
+	std::cout << "Matrix A:" << std::endl;
+	a->print();
 
-	// std::cout<< iSp->getElementAt(1, 1) << std::endl;
+	std::cout << "Reading Matrix B" <<std::endl;
+	b->read();
+	std::cout << "Matrix B, the boolean mask matrix" << std::endl;
+	b->print();
 
-	std::cout << "\nMasking int matrix with bool matrix"<< std::endl;
-	iSp->mask(bSp, cSp);
+	//masking
+	a->mask(b, c);
 
 
-	std::cout << "\nPrinting masked C Matrix" << std::endl;
-	cSp->print();
+	std::cout << "Matrix C, result:" << std::endl;
+	c->print();
 
+	std::cout <<"Deleting Matrix A" <<std::endl;
+	delete a;
+
+	std::cout <<"Deleting Matrix B" <<std::endl;
+	delete b;
+
+	std::cout <<"Deleting Matrix C" <<std::endl;
+	delete c;
+
+
+	return 0;
 	// delete sp;
 }

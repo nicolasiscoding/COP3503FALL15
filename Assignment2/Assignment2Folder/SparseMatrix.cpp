@@ -11,12 +11,6 @@
 //Assignment 2
 //Sparse Matrix 
 
-
-//To do:
-//	*Use Inhertiance/OOP design a interface
-//	*Implement case handling of matrix that is not sorted
-// 	*taking a already made 'C' matrix and making sure if works as needed
-
 template<class T>
 class SparseMatrix 
 {
@@ -32,6 +26,7 @@ class SparseMatrix
 		T getElementAt(int row, int col);
 
 	private:
+		//using a node struct because it is light
 		struct node
 		{
 			//next node
@@ -53,80 +48,11 @@ class SparseMatrix
 		node** rows;
 };
 
+/* 
 
-//constructor
-template<class T>
-SparseMatrix<T>::SparseMatrix()
-{
-	rows = 0;		//initialize root and last pointers to null
-	numRows = 0;
-	numCols = 0;
-}
+A nice illustration of how I stored everything
 
-//Destructor implementation
-template<class T>
-SparseMatrix<T>::~SparseMatrix()
-{
-	// int fullsize = size();	//Figure out size and deallocate each memory address
-	// node * toDelete; 
-	// int i = 0;
-	// while(i++ < fullsize)
-	// {
-	// 	toDelete = root;
-	// 	root = root->next;
-	// 	delete toDelete;
-	// }
-	std::cout <<" " << std::endl;
-}
-
-template<class T>
-void SparseMatrix<T>::intializeAllRowPointers()
-{
-	for(int i = 0; i < numRows; i++)
-	{
-		rows[i] = 0;
-	}
-}
-
-template<class T>
-void SparseMatrix<T>::print() const
-{
-	//std::cout << "\n\nPrinting method" << std::endl;
-	std::cout << "rows = " << numRows << " columns = " << numCols << "\n" << std::endl;
-
-
-	std::stringstream ss; 
-	for(int i = 0; i < numRows; i++)
-	{
-		// std::cout << "row " << i+1 <<  "row points to: " << rows[i] << std::endl;
-		if(rows[i] == 0)
-		{
-			// std::cout << "Row " << i+1 << " is empty skipping on print" << std::endl;
-			continue;
-		}
-
-		ss<< "row " << (i+1) <<"[";
-
-		//node** rowPtr = rows[i];
-		node* current = rows[i];
-
- 		while(current != 0)
-		{
-			//std::cout << "Pointer address " << current;
-			ss<< "col: " << current->column << " value: " << current->data << ", ";
-			current = current->next;
-		}
-
-		std::string toPrint = ss.str().substr(0, ss.str().size()-2);
-		std::cout << toPrint << "]" << std::endl;;
-		ss.str(std::string());
-	}
-
-
-}
-
-/* A nice illustration of how I stored everything
-node ** - new node**[numofrows]
+node ** = new node*[numRows]
 	 ||
 	 ||
 	 ||
@@ -143,14 +69,94 @@ node ** - new node**[numofrows]
 |node*  |
 |node*  |
 |node*  |
+
 */
 
+//constructor
+template<class T>
+SparseMatrix<T>::SparseMatrix()
+{
+	rows = 0;		//initialize root and last pointers to null
+	numRows = 0;
+	numCols = 0;
+}
 
-//insert T data to index index
+//Destructor implementation
+template<class T>
+SparseMatrix<T>::~SparseMatrix()
+{
+	for(int i = 0; i < numRows; i++)
+	{
+		//if row is empty, skip
+		if(rows[i] == 0)
+		{
+
+			continue;
+		}
+
+		node * toDelete = rows[i]; 
+
+		while(toDelete->next != 0)
+		{
+			node* temp = toDelete;
+			toDelete = toDelete->next;
+			delete temp;
+		}
+
+		delete toDelete;
+	}
+	
+	//delete pointer to pointer
+	delete rows;
+}
+
+//method for initializing all pointers in row to zero, ran into case where OS was assigning garbage pointers
+template<class T>
+void SparseMatrix<T>::intializeAllRowPointers()
+{
+	for(int i = 0; i < numRows; i++)
+	{
+		rows[i] = 0;
+	}
+}
+
+//basic print method
+template<class T>
+void SparseMatrix<T>::print() const
+{
+	std::cout << "rows = " << numRows << " columns = " << numCols << std::endl;
+
+
+	std::stringstream ss; 
+	for(int i = 0; i < numRows; i++)
+	{
+		if(rows[i] == 0)
+		{
+			std::cout << "row " << i+1 << "[]" <<std::endl;
+			continue;
+		}
+		ss<< "row " << (i+1) <<"[";
+
+		node* current = rows[i];
+
+ 		while(current != 0)
+		{
+			ss<< "col: " << current->column << " value: " << current->data << ", ";
+			current = current->next;
+		}
+
+		std::string toPrint = ss.str().substr(0, ss.str().size()-2);
+		std::cout << toPrint << "]" << std::endl;;
+		ss.str(std::string());
+	}
+	std::cout << "" <<std::endl;
+}
+
+//A class to parse input and 
 template<class T>
 void SparseMatrix<T>::read()
 {
-	std::cout << "Beginning Reading for new Matrix\n\nEnter number of rows, columns\n";
+	std::cout << "Enter number of rows, columns" <<std::endl;
 
 	//read rows and columns
 	std:: string rowsAndColsSTR;
@@ -161,8 +167,6 @@ void SparseMatrix<T>::read()
 	numCols = atoi(rowsAndColsSTR.substr(0, rowsAndColsSTR.find(' ')).c_str());
 
 	//declare rows array to hold nodes
-
-	//double pointer to nodes = new *node[Num of rows]
 	rows = new node*[numRows];
 	intializeAllRowPointers();
 
@@ -170,10 +174,9 @@ void SparseMatrix<T>::read()
 	
 	for(int i = 0; i < numRows; i++)
 	{
+		//parse to get number of terms
 		std::cout << "Enter number of terms in row " << (i+1) << std::endl;
-
 		std::string numTermsstr;
-
 		std::getline(std::cin, numTermsstr);
 		int numTerms = atoi(numTermsstr.c_str());
 
@@ -198,13 +201,13 @@ void SparseMatrix<T>::read()
 		//Always pointing to current node for efficiency
 		rows[i] = 0;
 		node *current = 0;
+
+		//parse using space as delimeter
 		while(numTerms != 0)
 		{
 			//parse column number
 			int colNum = atoi(colsAndVals.substr(0, colsAndVals.find(' ')).c_str());
 			colsAndVals.erase(0, colsAndVals.find(' ')+ 1);
-
-			// std::cout << colsAndVals << std::endl;
 
 			//Declare the value to be saved in the node
 			T value;
@@ -221,6 +224,7 @@ void SparseMatrix<T>::read()
 				colsAndVals.erase(0, colsAndVals.find(' ')+ 1);
 			}
 
+			//Error handling
 			//column parse to make sure that we are not putting an invalid entry in the matrix.
 			if(colNum > numCols || colNum < 0)
 			{
@@ -229,6 +233,7 @@ void SparseMatrix<T>::read()
 				continue;
 			}
 
+			//check to see if column already exists
 			if(getElementAt((i+1),colNum) != 0)
 			{
 				std::cout << "Error, value is already at column " << colNum << "\n"<< std::endl;
@@ -243,8 +248,6 @@ void SparseMatrix<T>::read()
 				continue;
 			}
 
-			
-
 			//first case where there are no nodes in the row
 			if(current == 0)
 			{
@@ -256,6 +259,7 @@ void SparseMatrix<T>::read()
 				continue;	
 			}
 
+			//general case
 			current->next = new node(colNum, value);
 			current = current->next;
 			current->next = 0;	
@@ -264,10 +268,11 @@ void SparseMatrix<T>::read()
 	}
 }
 
+//function for parsing value if the matrix is a boolean, or a int matrix
 template<class T>
 T SparseMatrix<T>::parseValue(std::string str)
 {
-	
+	//depending on if the matrix is int or bool, wed handle this differently
 	std::string type = typeid( T ).name();
 
 	int val = atoi(str.c_str());
@@ -276,7 +281,7 @@ T SparseMatrix<T>::parseValue(std::string str)
 		return val;
 	}
 
-	//For Parse, 
+	//For boolean, value can either be zero  or one 
 	if(type.compare("b") == 0 && str.size() == 1 && (val == 1 || val == 0))
 	{
 		return val;
@@ -292,18 +297,22 @@ T SparseMatrix<T>::parseValue(std::string str)
 	return 0;
 }
 
+//simple getter function for number of columns
 template<class T>
 int SparseMatrix<T>::getNumberOfColumns()
 {
 	return numCols;
 }
 
+//simple getter function for number of rows
 template<class T>
 int SparseMatrix<T>::getNumberOfRows()
 {
 	return numRows;
 }
 
+//this is a private method for when other sparsematricies need to make a insert 
+//(used for masking)
 template<class T>
 void SparseMatrix<T>::privateInsert(int row, int col, T val)
 {
@@ -314,22 +323,18 @@ void SparseMatrix<T>::privateInsert(int row, int col, T val)
 		return;
 	}
 
-	std::cout<< "Inserting at " << row << " " << col << " val: " << val << std::endl;
-
 	//if inserting at beginning of rows, make sure we tie row in
 	if(rows[row-1] == 0)
 	{
-		std::cout << "beginning of row case " << std::endl;
 		rows[row-1] = new node(col, val);
 		rows[row-1]->next = 0;
+		return;
 	}
 
+	//iterate through the rows to the second to last row
 	node *conductor = rows[row-1];
 	while(conductor->next != 0)
 	{
-		//debug
-		std::cout << "Conductor Pointer is " << conductor << std::endl;
-
 		if(conductor->column == col)
 		{
 			std::cout << "Element exists, can not overwrite.\n\n" << std::endl;
@@ -338,28 +343,17 @@ void SparseMatrix<T>::privateInsert(int row, int col, T val)
 		conductor = conductor->next;
 	}
 
+	//if on last column and its the one we are looking for
 	if(conductor->column == col)
 	{
-		std::cout << "Element exists, can not overwrite.\n\n" << std::endl;
 		return;
 	}
 
-	// std::cout<< "Conductor Pointer is " << conductor << std::endl;
 	conductor->next = new node(col, val);
-	// std::cout << "Conductor Pointer is " << conductor << std::endl;
 	conductor->next->next = 0;
-	
-
-	//temp debug
-	std::cout << "\nQuickPrintRow\n" <<std::endl;
-	node * print = rows[row-1];
-	while(print!= 0)
-	{
-		std::cout << print->data << std::endl;
-		print = print->next;
-	}
 }
 
+//getter function to get a specific element given a location
 template<class T>
 T SparseMatrix<T>::getElementAt(int row, int col)
 {
@@ -392,6 +386,7 @@ T SparseMatrix<T>::getElementAt(int row, int col)
 	return conductor->data;
 }
 
+//mask function takes in a bool matrix, and another matrix of the same type
 template<class T>
 void SparseMatrix<T>::mask(SparseMatrix<bool> *bMatrix, SparseMatrix<T> *matrixToMask)
 {
@@ -413,8 +408,6 @@ void SparseMatrix<T>::mask(SparseMatrix<bool> *bMatrix, SparseMatrix<T> *matrixT
 	matrixToMask->rows = new node*[numRows];
 	matrixToMask->intializeAllRowPointers();
 
-	// std::cout << "Masked Matrix rows: " << matrixToMask->numRows << " Masked Matrix Cols: " << matrixToMask ->numCols << std::endl;
-
 	for(int i = 1; i <= numRows; i++)
 	{
 		for(int j = 1; j <= numCols; j++)
@@ -422,18 +415,12 @@ void SparseMatrix<T>::mask(SparseMatrix<bool> *bMatrix, SparseMatrix<T> *matrixT
 			T Ival = getElementAt((i), (j));
 			bool bval = bMatrix->getElementAt((i), (j));
 
-			// std::cout << "value at row " << i << " col " << j << std::endl; 
-			// std::cout << "int matrix val: " << Ival << "\nbool matrix val: " << bval << std::endl;
-
 			if(Ival == 0 || bval == 0)
 			{
-				// std::cout << "Value is zero, skipping\n" << std::endl;
 				continue;
 			}
 
 			matrixToMask->privateInsert(i, j, Ival);
-			std::cout << "Mask complete for row " << i << " col " << j << std::endl;
-
 		}
 	}
 }
