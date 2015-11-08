@@ -1,250 +1,241 @@
-#include <math.h>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <algorithm>
+#include <typeinfo>
 
-class minHeap
+//Name:				Nicolas Fry
+//UF ID:			
+//GatorID:			nicolascoding
+//Discussion Section: 1085
+//Assignment 3
+//Height Biased Leftist Tree implementation 
+
+template<class T>
+class hblt 
 {
 	public:
-		minHeap();				//done
-		~minHeap();				//done
-		bool empty() const;			//done
-		int size() const;			//done
-		void push(int val);			//done
-		int top() const;			//done
-		void pop();					//done
-		int capacity() const;		//done
-		bool full() const;			//done
-		void print() const;			//done
+		hblt();
+		~hblt();
+		bool empty() const;			
+		int size() const;			
+		void push(T val);			
+		T top() const;			
+		void pop();					
+		bool full() const;			
+		void print() const;
 
+		//specific to assignment
+		int getSum() const;		
 
 	private:
-		//methods
-		int getLeftChildIndex(int index) const;
-		int getRightChildIndex(int index) const;
-		int getParentIndex(int index) const;
-		void resize();
-		void reheapthearray(int index);
-		void swap(int pos1, int pos2);
+		struct node
+		{
+			//next node
+			node* leftChild;
+			node* rightChild;
+			T data;
+			// int sVal = 0;
+			node(T dat)
+			{
+				leftChild = 0;
+				rightChild = 0;
+				data = dat;
+			}
 
-		//vars
-		int *minHeapArray;
+		};
 		int amountOfElements;
-		int capacityMultiple; 
+		int sum;
+		node* root;
+		typename hblt<T>::node* meld(node* leftB, node* rightB);
+		int getSVal(node* n);
+
+		//used for destructor
+		void deleteAllSouthof(node* n);
 };
 
-minHeap::minHeap()
+template<class T>
+int hblt<T>::getSum() const
 {
-	//since 0 is empty, always using (2^n + 1)
-	capacityMultiple = 3;
-
-	//initialize minHeapArray to have 3 levels (7 nodes)
-	int capacity = pow(2, capacityMultiple);
-	minHeapArray = new int[capacity];
-
-	for (int i = 0; i < capacity; i++)
-	{
-		minHeapArray[i] = 0;
-	}
-
-	amountOfElements = 0;
+	return sum;
 }
 
-minHeap::~minHeap()
+template<class T>
+bool hblt<T>::empty() const
 {
-	delete minHeapArray;
+	return root == 0;
 }
 
-int minHeap::getLeftChildIndex(int index) const
-{
-	int cap = capacity();
-	if(2 * index > cap)
-	{
-		return 0;
-	}
-	return 2 * index;
-}
-
-int minHeap::getRightChildIndex(int index) const
-{
-
-	int cap = capacity();
-	if(2 * index + 1> cap)
-	{
-		return 0;
-	}
-
-	return 2 * index + 1;
-}
-
-int minHeap::getParentIndex(int index) const
-{
-	return index/2;
-}
-
-void minHeap::resize() 
-{
-	//figuring out new capacity and instanciating new array
-	int newCapacityMultiple = capacityMultiple + 1;
-	int newCapacity = pow(2, newCapacityMultiple);
-	int *newArray = new int[newCapacity];
-
-	//figure out old capacity and copy elements to new minHeap Array
-	int oldCapacity = pow(2, capacityMultiple);
-	for(int i = 0; i <oldCapacity; i++)
-	{
-		newArray[i] = minHeapArray[i];
-	}
-
-	//make new array the minHeap Array
-	int *temp = minHeapArray;
-	minHeapArray = newArray;
-	delete temp;
-
-	//increase the capacity multiple
-	capacityMultiple+=1;
-}
-
-
-int minHeap::size() const
+template<class T>			
+int hblt<T>::size() const
 {
 	return amountOfElements;
 }
 
-void minHeap::pop()
+template<class T>
+void hblt<T>::push(T dat)
 {
-	minHeapArray[1] = minHeapArray[amountOfElements];
-	minHeapArray[amountOfElements] = 0;
-	amountOfElements-=1;
-	reheapthearray(1);
-}
-
-void minHeap::reheapthearray(int index)
-{
-	std::cout << "Reheaping" << std::endl;
-	print();
-	int currentNode = minHeapArray[index];
-
-	int leftChildIndex = getLeftChildIndex(index);
-	int leftChild = minHeapArray[leftChildIndex];
-
-	int rightChildIndex = getRightChildIndex(index);
-	int rightChild = minHeapArray[rightChildIndex];
-
-	int smallestValueIndex = -1;
-
-	if(leftChildIndex <= capacity() && leftChild < currentNode && leftChild != 0)
+	node *val = new node(dat);
+	if(size() == 0)
 	{
-		std:: cout << "Picking leftChildIndex" << std::endl;
-		smallestValueIndex = leftChildIndex;
-		currentNode = leftChild;
-	}
-	
-	if(rightChildIndex <= capacity() && rightChild < currentNode && rightChild != 0)
-	{
-		std:: cout << "Picking rightChildIndex" << std::endl;
-		smallestValueIndex = rightChildIndex;
-	}
+		// std::cout<<"loc 1" << std::endl;
+		root = val;
+		amountOfElements+=1;
 
-	if(smallestValueIndex == -1)
-	{
+		//specific to assignment
+		sum+= int(dat);
+		// std::cout<<"init root: " << root->data << std::endl;
 		return;
 	}
 
-	std::cout <<"startswap" << std::endl;
-	swap(index, smallestValueIndex);
-	reheapthearray(smallestValueIndex);
+	// std::cout<<"loc 2" << std::endl;
+	root = meld(root, val);
+	// std::cout<<"root: " << root->data << std::endl;
+	amountOfElements+=1;
 
+	//specific to assignment
+	sum+= int(dat);
+	// std::cout << "new sum: " << sum << std::endl;
 }
 
-int minHeap::capacity() const
+template<class T>			
+T hblt<T>::top() const
 {
-	return (pow(2, capacityMultiple)-1);
-}
+	if(size() > 0)
+		return root->data;
 
-bool minHeap::empty() const
-{
-	return 0 == amountOfElements;
-}
-
-bool minHeap::full() const
-{
-	return size() == capacity();
-}
-
-int minHeap::top() const
-{
-	if(!empty())
-	{
-		return minHeapArray[1];
-	}
-
-	std::cout << "min-heap array is empty!" << std::endl;
-
+	std::cout << "Tree is empty!" <<std::endl;
 	return 0;
+}			
+
+template<class T>
+void hblt<T>::pop()
+{
+	if(size() == 0)
+	{
+		std::cout << "Tree is empty!" << std::endl;
+		return;
+	}	
+
+	sum-=top();
+	// std::cout << "new sum: " << sum << std::endl;
+
+	node* leftB = root->leftChild;
+	node* rightB = root->rightChild;
+	node* toDelete = root;
+
+	root = meld(leftB, rightB);
+	delete toDelete;
+	amountOfElements-=1;
+	std::cout << "Amount of elements "<< size() << std::endl;
+}		
+
+template<class T>
+typename hblt<T>::node* hblt<T>::meld(node* leftB, node* rightB)
+{
+	if(leftB == 0)
+	{
+		// std::cout << "returning rightB" << std::endl;
+		return rightB;
+	}
+
+	if(rightB == 0)
+	{
+		// std::cout << "returning leftB" << std::endl;
+		return leftB;
+	}
+
+	// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
+	if(leftB->data > rightB->data)
+	{
+		// std::cout << "Leftbranch's data > rightbranch's data" << std::endl;
+		// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
+		node *holder = leftB;
+		leftB = rightB;
+		rightB = holder;
+		// std::cout << "leftbranch and rightbranch swapped new data's:" << std::endl;
+		// std::cout << "Leftbranch's data > rightbranch's data" << std::endl;
+		// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
+		
+	}
+	// std::cout << "Checkpoint1" << std::endl;
+	leftB->rightChild = meld(leftB->rightChild, rightB);
+	// std::cout << "Checkpoint2" << std::endl;
+
+	if(leftB->leftChild == 0)
+	{
+		// std::cout << "Checkpoint3" << std::endl;
+		leftB->leftChild = leftB->rightChild;
+		leftB->rightChild = 0;
+	}
+	else
+	{
+		// std::cout << "Checkpoint4" << std::endl;
+		// std::cout<< "leftB->leftChild " << leftB->leftChild << " rightB->rightChild " << rightB->rightChild << std::endl;
+		if(getSVal(leftB->leftChild) < getSVal(rightB->rightChild))
+		{
+			// std::cout << "Checkpoint5" << std::endl;
+			node* holder = leftB->leftChild;
+			leftB->leftChild = leftB->rightChild;
+			leftB->rightChild = holder;
+		}
+	}
+	// std::cout << "returning left branch" << std::endl;
+	return leftB;
 }
 
-void minHeap::push(int val)
+template<class T>
+int hblt<T>::getSVal(node* n)
 {
+	//according to slides, the rightmost node yields the shortest path
+	int amount = 1;
 
-	/*
-	if(full())
+	if(n == 0)
 	{
-		resize();
+		return amount;
 	}
-	*/
 
-	if(full())
+	node* traverse = n;
+	while(traverse->rightChild != 0)
 	{
-		std::cout << "min-heap is full!" << std::endl;
+		amount+=1;
+		traverse= traverse->rightChild;
+	}
+	return amount;
+}
+
+//constructor
+template<class T>
+hblt<T>::hblt()
+{
+	root = 0;
+	amountOfElements = 0;
+}
+
+//Destructor implementation
+template<class T>
+hblt<T>::~hblt()
+{
+	deleteAllSouthof(root);
+}
+
+template<class T>
+void hblt<T>::deleteAllSouthof(node* n)
+{
+	if(n == 0)
+	{
 		return;
 	}
+	node* toDelete = n;
 
-	//get very last index available
-	int index = amountOfElements + 1;
-	std::cout << "index of insertion = " << index<< std::endl;
+	node* LeftBranchNode = n->leftChild;
+	node* RightbranchNode = n->rightChild;
 
-	minHeapArray[index] = val;
+	delete toDelete;
 
-	// print();
-
-	while(index != 1 && minHeapArray[index] < minHeapArray[getParentIndex(index)])
-	{
-		std::cout << "Swapping: " << minHeapArray[index] << " with " << minHeapArray[getParentIndex(index)] << std::endl;
-		swap(index, getParentIndex(index));
-		index = getParentIndex(index);
-	}
-
-	amountOfElements +=1;
+	deleteAllSouthof(LeftBranchNode);
+	deleteAllSouthof(RightbranchNode);
 }
 
-void minHeap::print() const
-{
-	for(int i = 1; i <=capacity(); i++)
-	{
-		std::cout << "NodeVal: " <<minHeapArray[i]; 
 
-		if(minHeapArray[getLeftChildIndex(i)] != 0)
-		{
-			std::cout <<  ", Leftchild: " << minHeapArray[getLeftChildIndex(i)];
-		}
 
-		if(minHeapArray[getRightChildIndex(i)] != 0)
-		{
-			std::cout << ", Rightchild: " << minHeapArray[getRightChildIndex(i)];
-		}
-
-		 std::cout<< std::endl;
-	}
-
-	std::cout << std::endl;
-}
-
-void minHeap::swap(int pos1, int pos2)
-{
-	int temp = minHeapArray[pos1];
-	minHeapArray[pos1] = minHeapArray[pos2];
-	minHeapArray[pos2] = temp;
-}
-
-//				1
-//	 2				  3
-//4		5			6	7
