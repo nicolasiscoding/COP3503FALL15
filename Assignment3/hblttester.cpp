@@ -30,6 +30,7 @@ int main()
 	std::cout << "Empty: " << a->empty() << std::endl;
 
 	std::cout << "Sum: " << a->getSum() << std::endl;
+	std::cout << "Amount of elements " << a->size() << std::endl;
 
 	a->pop();
 	std::cout<< "Top: " << a->top() << std::endl;

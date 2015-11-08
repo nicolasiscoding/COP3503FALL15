@@ -21,8 +21,7 @@ class hblt
 		int size() const;			
 		void push(T val);			
 		T top() const;			
-		void pop();					
-		bool full() const;			
+		void pop();								
 		void print() const;
 
 		//specific to assignment
@@ -35,12 +34,14 @@ class hblt
 			node* leftChild;
 			node* rightChild;
 			T data;
-			// int sVal = 0;
+			int sVal;
+			// int sValz = 0;
 			node(T dat)
 			{
 				leftChild = 0;
 				rightChild = 0;
 				data = dat;
+				sVal = 1;
 			}
 
 		};
@@ -48,6 +49,8 @@ class hblt
 		int sum;
 		node* root;
 		typename hblt<T>::node* meld(node* leftB, node* rightB);
+
+		//made this to try and understand s-value better
 		int getSVal(node* n);
 
 		//used for destructor
@@ -85,6 +88,8 @@ void hblt<T>::push(T dat)
 		//specific to assignment
 		sum+= int(dat);
 		// std::cout<<"init root: " << root->data << std::endl;
+		// std::cout << "new sum: " << sum << std::endl;
+
 		return;
 	}
 
@@ -127,7 +132,7 @@ void hblt<T>::pop()
 	root = meld(leftB, rightB);
 	delete toDelete;
 	amountOfElements-=1;
-	std::cout << "Amount of elements "<< size() << std::endl;
+	// std::cout << "Amount of elements "<< size() << std::endl;
 }		
 
 template<class T>
@@ -172,12 +177,37 @@ typename hblt<T>::node* hblt<T>::meld(node* leftB, node* rightB)
 	{
 		// std::cout << "Checkpoint4" << std::endl;
 		// std::cout<< "leftB->leftChild " << leftB->leftChild << " rightB->rightChild " << rightB->rightChild << std::endl;
-		if(getSVal(leftB->leftChild) < getSVal(rightB->rightChild))
+		// if(getSVal(leftB->leftChild) < getSVal(rightB->rightChild))
+
+		int leftBsVal = 0;
+		int rightBsVal = 0;
+
+		if(leftB->leftChild != 0)
+		{
+			leftBsVal = leftB->leftChild->sVal;
+		}
+
+		if(rightB->rightChild != 0)
+		{
+			rightBsVal = rightB->rightChild->sVal;
+		}
+
+
+		if(leftBsVal < rightBsVal)
 		{
 			// std::cout << "Checkpoint5" << std::endl;
 			node* holder = leftB->leftChild;
 			leftB->leftChild = leftB->rightChild;
 			leftB->rightChild = holder;
+		}
+
+		if(leftB->rightChild != 0)
+		{
+			leftB->sVal = leftB->rightChild->sVal + 1;
+		}
+		else
+		{
+			leftB->sVal = 1;
 		}
 	}
 	// std::cout << "returning left branch" << std::endl;
