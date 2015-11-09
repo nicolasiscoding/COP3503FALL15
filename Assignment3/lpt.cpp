@@ -5,6 +5,15 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <ctime>
+
+//Name:				Nicolas Fry
+//UF ID:			
+//GatorID:			nicolascoding
+//Discussion Section: 1085
+//Assignment 3s
+//LPT implementation
 
 int commandlineToString()
 {
@@ -12,6 +21,14 @@ int commandlineToString()
 	std:: getline (std::cin, str);
 	return atoi(str.c_str());
 }
+
+struct CompareMachineNumber
+{
+    inline bool operator() (const Machine& Machine1, const Machine& Machine2)
+    {
+        return (Machine1.getName() < Machine2.getName());
+    }
+};
 
 int main()
 {
@@ -43,70 +60,110 @@ int main()
 			i--;
 			continue;
 		}
-		std::cout<< jobTime << std::endl;
 		jobsToProcess.push_back(jobTime);
 	}
 
+	//sort jobs from largest to smallest order as shown in document
 	std::sort(jobsToProcess.begin(), jobsToProcess.end(), std::greater<int>());
 
-	std::cout<< jobsToProcess[0] << " " << jobsToProcess[1] << std::endl;
-
-	// std::cout<<"Checkpoint 2" << std::endl;
+	//initialize two min priority queue vessels
 	minHeap<Machine>* minHeapScheduler = new minHeap<Machine>();
 	hblt<Machine>* hbltScheduler = new hblt<Machine>();
-
 	for(int i = 0; i < numMachines; i ++)
 	{
-		std::cout<<"Creating new machine" << std::endl;
 		Machine *m = new Machine();
+		Machine *n = new Machine();
 		m->setName(i+1);
-		std::cout<<"Pushing new machine" << std::endl;
+		n->setName(i+1);
 		minHeapScheduler->push(m);
-		std::cout << "top: " << *minHeapScheduler->top() << std::endl;
+		hbltScheduler->push(n);
 	}
 
-	// for(int i = 0; i < numMachines; i++)
-	// {
-	//  	Machine *m = new Machine();
-	// 	m.setName(i+1);
-	// // 	hbltScheduler->push(m);
-	// }
+	std::chrono::time_point<std::chrono::system_clock> minHeapstart;
+	std::chrono::time_point<std::chrono::system_clock> minHeapend;
 
-	// std::cout<<"Checkpoint 4" << std::endl;
+	std::chrono::time_point<std::chrono::system_clock> hbltstart;
+	std::chrono::time_point<std::chrono::system_clock> hbltend;
 
+	//LPT algorithm on minHeap
 
-	//MinHeap: insert start time here
-
-	std::cout << "jobs: " << std::endl;
-	for(int i = 0; i < jobsToProcess.size(); i++)
-	{
-		std::cout << "\t" << jobsToProcess[i] << std::endl;
-	}
-
+	minHeapstart = std::chrono::system_clock::now();
 	for(int i = 0; i < numJobs; i++)
 	{
-		std::cout <<"\nStarting iteration of insert loop" << std::endl;
 		Machine* l = minHeapScheduler->top();
-		std::cout <<"Top: " << *l << std::endl;
-		minHeapScheduler->pop();
-		std::cout<< "Inserting " << jobsToProcess[i] << " into machine that was previously "<< *l <<std::endl;
-		l->addJob(jobsToProcess[i]);
-		std::cout<< "New machine value is: " << *l << std::endl;
-		minHeapScheduler->push(l);
-		std::cout<< "Endloop: new top: " << *minHeapScheduler->top() << std::endl;
-	}
-
-	std::cout << "\n\nEnd of scheduling: " << std::endl;
-	minHeapScheduler->print();
-
-	for(int i = 0; i < minHeapScheduler->size(); i++)
-	{
-		std::cout << "Popping top Machine: " << std::endl;
-		Machine*l = minHeapScheduler->top();
-
 		std::cout << *l << std::endl;
 		minHeapScheduler->pop();
+		l->addJob(jobsToProcess[i]);
+		minHeapScheduler->push(l);
+	}	
+	minHeapend = std::chrono::system_clock::now();
+
+	hbltstart = std::chrono::system_clock::now();
+	for(int i = 0; i < numJobs; i++)
+	{
+		Machine* l = hbltScheduler->top();
+		hbltScheduler->pop();
+		l->addJob(jobsToProcess[i]);
+		hbltScheduler->push(l);
 	}
+	hbltend = std::chrono::system_clock::now();	
+
+	//Display results of minHeap
+	std::cout << "\n\nMin Heap Finishing Time: " << std::endl;
+	std::cout << "Schedule:" << std::endl;
+	std::vector<Machine> minHeapResults;
+	int size = minHeapScheduler->size();
+	for(int i = 1; i <= size; i++)
+	{
+		Machine*l = minHeapScheduler->top();
+		minHeapResults.push_back(*l);
+		minHeapScheduler->pop();
+	}
+	std::sort(minHeapResults.begin(), minHeapResults.end(), CompareMachineNumber());
+	
+	for(int i = 0; i < minHeapResults.size(); i++)
+	{
+		std::cout<< "Machine " << i+1 << ": ";
+		minHeapResults[i].printJobs();
+	}
+	std::chrono::duration<double> minHeapTime = minHeapend - minHeapstart;
+	std::cout<< "Time Eapsed: " << minHeapTime.count() <<std::endl;
 
 
+
+	//Display Results of HBLT
+	std::cout << "\n\nHeight Biased Leftist Tree Finishing Time: " << std::endl;
+	std::cout << "Schedule:" << std::endl;
+	std::vector<Machine> hbltResults;
+	size = hbltScheduler->size();
+	for(int i = 1; i <= size; i++)
+	{
+		Machine*l = hbltScheduler->top();
+		hbltResults.push_back(*l);
+		hbltScheduler->pop();
+	}
+	std::sort(hbltResults.begin(), hbltResults.end(), CompareMachineNumber());
+	
+	for(int i = 0; i < hbltResults.size(); i++)
+	{
+		std::cout<< "Machine " << i+1 << ": ";
+		hbltResults[i].printJobs();
+	}
+	std::chrono::duration<double> HBLTtime = hbltend - hbltstart;
+	std::cout<< "Time Eapsed: " << HBLTtime.count() <<std::endl;
+
+
+	// std::cout << "\nEnd of scheduling for hieght biased leftist tree implementation" << std::endl;
+
+	// for(int i = 0; i < minHeapScheduler->size(); i++)
+	// {
+	// 	std::cout << "Popping top Machine: " << std::endl;
+	// 	Machine*l = hbltScheduler->top();
+	// 	std::cout << *l << std::endl;
+	// 	hbltScheduler->pop();
+	// }
+
+
+	delete minHeapScheduler;
+	delete hbltScheduler;
 }

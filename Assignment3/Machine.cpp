@@ -3,12 +3,19 @@
 #include <stdlib.h>
 #include <string>
 
+//Name:				Nicolas Fry
+//UF ID:			
+//GatorID:			nicolascoding
+//Discussion Section: 1085
+//Assignment 3s
+//'Machine' implementation
+
 class Machine
 {
 	public:
 		Machine();
 		void setName(int n);
-		int getName();
+		int getName() const;
 		// ~Machine();
 		int getTotalTime() const;
 		std::vector<int> getJobList() const;
@@ -35,7 +42,7 @@ void Machine::setName(int n)
 	number = n;
 }
 
-int Machine::getName()
+int Machine::getName() const
 {
 	return number;
 }

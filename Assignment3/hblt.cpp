@@ -8,7 +8,7 @@
 //UF ID:			
 //GatorID:			nicolascoding
 //Discussion Section: 1085
-//Assignment 3
+//Assignment 3s
 //Height Biased Leftist Tree implementation 
 
 template<class T>
@@ -19,13 +19,13 @@ class hblt
 		~hblt();
 		bool empty() const;			
 		int size() const;			
-		void push(T val);			
-		T top() const;			
+		void push(T* val);			
+		T* top() const;			
 		void pop();								
 		void print() const;
 
 		//specific to assignment
-		int getSum() const;		
+		// int getSum() const;		
 
 	private:
 		struct node
@@ -33,10 +33,10 @@ class hblt
 			//next node
 			node* leftChild;
 			node* rightChild;
-			T data;
+			T* data;
 			int sVal;
 			// int sValz = 0;
-			node(T dat)
+			node(T* dat)
 			{
 				leftChild = 0;
 				rightChild = 0;
@@ -46,7 +46,7 @@ class hblt
 
 		};
 		int amountOfElements;
-		int sum;
+		// int sum;
 		node* root;
 		typename hblt<T>::node* meld(node* leftB, node* rightB);
 
@@ -57,11 +57,11 @@ class hblt
 		void deleteAllSouthof(node* n);
 };
 
-template<class T>
-int hblt<T>::getSum() const
-{
-	return sum;
-}
+// template<class T>
+// int hblt<T>::getSum() const
+// {
+// 	return sum;
+// }
 
 template<class T>
 bool hblt<T>::empty() const
@@ -76,35 +76,22 @@ int hblt<T>::size() const
 }
 
 template<class T>
-void hblt<T>::push(T dat)
+void hblt<T>::push(T* dat)
 {
 	node *val = new node(dat);
 	if(size() == 0)
 	{
-		// std::cout<<"loc 1" << std::endl;
 		root = val;
 		amountOfElements+=1;
-
-		//specific to assignment
-		sum+= int(dat);
-		// std::cout<<"init root: " << root->data << std::endl;
-		// std::cout << "new sum: " << sum << std::endl;
-
 		return;
 	}
 
-	// std::cout<<"loc 2" << std::endl;
 	root = meld(root, val);
-	// std::cout<<"root: " << root->data << std::endl;
 	amountOfElements+=1;
-
-	//specific to assignment
-	sum+= int(dat);
-	// std::cout << "new sum: " << sum << std::endl;
 }
 
 template<class T>			
-T hblt<T>::top() const
+T* hblt<T>::top() const
 {
 	if(size() > 0)
 		return root->data;
@@ -122,9 +109,6 @@ void hblt<T>::pop()
 		return;
 	}	
 
-	sum-=top();
-	// std::cout << "new sum: " << sum << std::endl;
-
 	node* leftB = root->leftChild;
 	node* rightB = root->rightChild;
 	node* toDelete = root;
@@ -132,7 +116,6 @@ void hblt<T>::pop()
 	root = meld(leftB, rightB);
 	delete toDelete;
 	amountOfElements-=1;
-	// std::cout << "Amount of elements "<< size() << std::endl;
 }		
 
 template<class T>
@@ -140,45 +123,30 @@ typename hblt<T>::node* hblt<T>::meld(node* leftB, node* rightB)
 {
 	if(leftB == 0)
 	{
-		// std::cout << "returning rightB" << std::endl;
 		return rightB;
 	}
 
 	if(rightB == 0)
 	{
-		// std::cout << "returning leftB" << std::endl;
 		return leftB;
 	}
 
-	// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
-	if(leftB->data > rightB->data)
+	if(*leftB->data > *rightB->data)
 	{
-		// std::cout << "Leftbranch's data > rightbranch's data" << std::endl;
-		// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
 		node *holder = leftB;
 		leftB = rightB;
-		rightB = holder;
-		// std::cout << "leftbranch and rightbranch swapped new data's:" << std::endl;
-		// std::cout << "Leftbranch's data > rightbranch's data" << std::endl;
-		// std::cout << "Leftbranch's data: " << leftB->data << " Rightbranch's data: " << rightB->data <<std::endl;
-		
+		rightB = holder;		
 	}
-	// std::cout << "Checkpoint1" << std::endl;
+
 	leftB->rightChild = meld(leftB->rightChild, rightB);
-	// std::cout << "Checkpoint2" << std::endl;
 
 	if(leftB->leftChild == 0)
 	{
-		// std::cout << "Checkpoint3" << std::endl;
 		leftB->leftChild = leftB->rightChild;
 		leftB->rightChild = 0;
 	}
 	else
 	{
-		// std::cout << "Checkpoint4" << std::endl;
-		// std::cout<< "leftB->leftChild " << leftB->leftChild << " rightB->rightChild " << rightB->rightChild << std::endl;
-		// if(getSVal(leftB->leftChild) < getSVal(rightB->rightChild))
-
 		int leftBsVal = 0;
 		int rightBsVal = 0;
 
@@ -195,7 +163,6 @@ typename hblt<T>::node* hblt<T>::meld(node* leftB, node* rightB)
 
 		if(leftBsVal < rightBsVal)
 		{
-			// std::cout << "Checkpoint5" << std::endl;
 			node* holder = leftB->leftChild;
 			leftB->leftChild = leftB->rightChild;
 			leftB->rightChild = holder;
@@ -205,15 +172,16 @@ typename hblt<T>::node* hblt<T>::meld(node* leftB, node* rightB)
 		{
 			leftB->sVal = leftB->rightChild->sVal + 1;
 		}
+
 		else
 		{
 			leftB->sVal = 1;
 		}
 	}
-	// std::cout << "returning left branch" << std::endl;
 	return leftB;
 }
 
+//not used in latest version, but a decent function to have
 template<class T>
 int hblt<T>::getSVal(node* n)
 {
