@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <chrono>
-#include <ctime>
 
 //Name:				Nicolas Fry
 //UF ID:			
@@ -24,9 +23,9 @@ int commandlineToString()
 
 struct CompareMachineNumber
 {
-    inline bool operator() (const Machine& Machine1, const Machine& Machine2)
+    inline bool operator() (const Machine& MachineA, const Machine& MachineB)
     {
-        return (Machine1.getName() < Machine2.getName());
+        return (MachineA.getName() < MachineB.getName());
     }
 };
 
@@ -66,6 +65,10 @@ int main()
 	//sort jobs from largest to smallest order as shown in document
 	std::sort(jobsToProcess.begin(), jobsToProcess.end(), std::greater<int>());
 
+	//to prevent memory leaks from this main, I created a vector with
+	//the purpose of using it as garbage collection
+	std::vector<Machine*> machPointerList;
+
 	//initialize two min priority queue vessels
 	minHeap<Machine>* minHeapScheduler = new minHeap<Machine>();
 	hblt<Machine>* hbltScheduler = new hblt<Machine>();
@@ -77,8 +80,13 @@ int main()
 		n->setName(i+1);
 		minHeapScheduler->push(m);
 		hbltScheduler->push(n);
+
+		//main garbage collection for end
+		machPointerList.push_back(m);
+		machPointerList.push_back(n);
 	}
 
+	//initialize timekeepers
 	std::chrono::time_point<std::chrono::system_clock> minHeapstart;
 	std::chrono::time_point<std::chrono::system_clock> minHeapend;
 
@@ -86,12 +94,11 @@ int main()
 	std::chrono::time_point<std::chrono::system_clock> hbltend;
 
 	//LPT algorithm on minHeap
-
 	minHeapstart = std::chrono::system_clock::now();
 	for(int i = 0; i < numJobs; i++)
 	{
 		Machine* l = minHeapScheduler->top();
-		std::cout << *l << std::endl;
+		// std::cout << "Machine " << l->getName() << std::endl;
 		minHeapScheduler->pop();
 		l->addJob(jobsToProcess[i]);
 		minHeapScheduler->push(l);
@@ -102,6 +109,7 @@ int main()
 	for(int i = 0; i < numJobs; i++)
 	{
 		Machine* l = hbltScheduler->top();
+		// std::cout <<"Machine " <<  l->getName() << std::endl;
 		hbltScheduler->pop();
 		l->addJob(jobsToProcess[i]);
 		hbltScheduler->push(l);
@@ -109,18 +117,24 @@ int main()
 	hbltend = std::chrono::system_clock::now();	
 
 	//Display results of minHeap
-	std::cout << "\n\nMin Heap Finishing Time: " << std::endl;
-	std::cout << "Schedule:" << std::endl;
 	std::vector<Machine> minHeapResults;
+	int minHeapMaxTime = 0;
 	int size = minHeapScheduler->size();
 	for(int i = 1; i <= size; i++)
 	{
 		Machine*l = minHeapScheduler->top();
+		if(i == size)
+		{
+			minHeapMaxTime = l->getTotalTime();
+		}
 		minHeapResults.push_back(*l);
 		minHeapScheduler->pop();
 	}
 	std::sort(minHeapResults.begin(), minHeapResults.end(), CompareMachineNumber());
 	
+	std::cout << "\n\nMin Heap Finishing Time: " << minHeapMaxTime << std::endl;
+	std::cout << "Schedule:" << std::endl;
+
 	for(int i = 0; i < minHeapResults.size(); i++)
 	{
 		std::cout<< "Machine " << i+1 << ": ";
@@ -132,38 +146,39 @@ int main()
 
 
 	//Display Results of HBLT
-	std::cout << "\n\nHeight Biased Leftist Tree Finishing Time: " << std::endl;
-	std::cout << "Schedule:" << std::endl;
 	std::vector<Machine> hbltResults;
 	size = hbltScheduler->size();
+	int hbltMax = 0;
 	for(int i = 1; i <= size; i++)
 	{
 		Machine*l = hbltScheduler->top();
+		if(i == size)
+		{
+			hbltMax = l->getTotalTime();
+		}
 		hbltResults.push_back(*l);
 		hbltScheduler->pop();
 	}
 	std::sort(hbltResults.begin(), hbltResults.end(), CompareMachineNumber());
 	
+	std::cout << "\n\nHeight Biased Leftist Tree Finishing Time: " << hbltMax <<std::endl;
+	std::cout << "Schedule:" << std::endl;
+
 	for(int i = 0; i < hbltResults.size(); i++)
 	{
-		std::cout<< "Machine " << i+1 << ": ";
+		std::cout<< "Machine " << hbltResults[i].getName() << ": ";
 		hbltResults[i].printJobs();
 	}
 	std::chrono::duration<double> HBLTtime = hbltend - hbltstart;
 	std::cout<< "Time Eapsed: " << HBLTtime.count() <<std::endl;
 
 
-	// std::cout << "\nEnd of scheduling for hieght biased leftist tree implementation" << std::endl;
-
-	// for(int i = 0; i < minHeapScheduler->size(); i++)
-	// {
-	// 	std::cout << "Popping top Machine: " << std::endl;
-	// 	Machine*l = hbltScheduler->top();
-	// 	std::cout << *l << std::endl;
-	// 	hbltScheduler->pop();
-	// }
-
-
+	//final garbage collection
 	delete minHeapScheduler;
 	delete hbltScheduler;
+	size = machPointerList.size();
+	for(int i = 0; i < size; i++)
+	{
+		delete machPointerList[i];
+	}
 }
