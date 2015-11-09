@@ -1,20 +1,23 @@
 #include <math.h>
 #include <iostream>
 
+template<class T>
 class minHeap
 {
 	public:
-		minHeap();				//done
-		~minHeap();				//done
-		bool empty() const;			//done
-		int size() const;			//done
-		void push(int val);			//done
-		int top() const;			//done
-		void pop();					//done
-		int capacity() const;		//done
-		bool full() const;			//done
-		void print() const;			//done
+		minHeap();					
+		~minHeap();					
+		bool empty() const;			
+		int size() const;			
+		void push(T val);			
+		T top() const;			
+		void pop();					
+		int capacity() const;		
+		bool full() const;			
+		void print() const;
 
+		//asignment specific			
+		int getSum() const;
 
 	private:
 		//methods
@@ -26,19 +29,23 @@ class minHeap
 		void swap(int pos1, int pos2);
 
 		//vars
-		int *minHeapArray;
+		T *minHeapArray;
 		int amountOfElements;
 		int capacityMultiple; 
+
+		int sum;
 };
 
-minHeap::minHeap()
+template<class T>
+minHeap<T>::minHeap()
 {
 	//since 0 is empty, always using (2^n + 1)
 	capacityMultiple = 3;
+	sum = 0;
 
 	//initialize minHeapArray to have 3 levels (7 nodes)
 	int capacity = pow(2, capacityMultiple);
-	minHeapArray = new int[capacity];
+	minHeapArray = new T[capacity];
 
 	for (int i = 0; i < capacity; i++)
 	{
@@ -48,12 +55,20 @@ minHeap::minHeap()
 	amountOfElements = 0;
 }
 
-minHeap::minHeap()
+template<class T>
+minHeap<T>::~minHeap()
 {
 	delete minHeapArray;
 }
 
-int minHeap::getLeftChildIndex(int index) const
+template<class T>
+int minHeap<T>::getSum() const
+{
+	return sum;
+}
+
+template<class T>
+int minHeap<T>::getLeftChildIndex(int index) const
 {
 	int cap = capacity();
 	if(2 * index > cap)
@@ -63,7 +78,8 @@ int minHeap::getLeftChildIndex(int index) const
 	return 2 * index;
 }
 
-int minHeap::getRightChildIndex(int index) const
+template<class T>
+int minHeap<T>::getRightChildIndex(int index) const
 {
 
 	int cap = capacity();
@@ -75,27 +91,37 @@ int minHeap::getRightChildIndex(int index) const
 	return 2 * index + 1;
 }
 
-int minHeap::getParentIndex(int index) const
+template<class T>
+int minHeap<T>::getParentIndex(int index) const
 {
 	return index/2;
 }
 
-void minHeap::resize() 
+template<class T>
+void minHeap<T>::resize() 
 {
 	//figuring out new capacity and instanciating new array
 	int newCapacityMultiple = capacityMultiple + 1;
 	int newCapacity = pow(2, newCapacityMultiple);
-	int *newArray = new int[newCapacity];
+	T *newArray = new T[newCapacity];
 
 	//figure out old capacity and copy elements to new minHeap Array
-	int oldCapacity = pow(2, capacityMultiple);
-	for(int i = 0; i <oldCapacity; i++)
+	int oldCapacity = capacity();
+
+	//transfer old items into new array
+	for(int i = 0; i <=oldCapacity; i++)
 	{
 		newArray[i] = minHeapArray[i];
 	}
 
+	//initialize rest to zero
+	for(int i =oldCapacity+1; i < newCapacity; i++)
+	{
+		newArray[i] = 0;
+	}
+
 	//make new array the minHeap Array
-	int *temp = minHeapArray;
+	T *temp = minHeapArray;
 	minHeapArray = newArray;
 	delete temp;
 
@@ -103,24 +129,27 @@ void minHeap::resize()
 	capacityMultiple+=1;
 }
 
-
-int minHeap::size() const
+template<class T>
+int minHeap<T>::size() const
 {
 	return amountOfElements;
 }
 
-void minHeap::pop()
+template<class T>
+void minHeap<T>::pop()
 {
+	sum-= top();
 	minHeapArray[1] = minHeapArray[amountOfElements];
 	minHeapArray[amountOfElements] = 0;
 	amountOfElements-=1;
 	reheapthearray(1);
 }
 
-void minHeap::reheapthearray(int index)
+template<class T>
+void minHeap<T>::reheapthearray(int index)
 {
-	std::cout << "Reheaping" << std::endl;
-	print();
+	// std::cout << "Reheaping" << std::endl;
+	// print();
 	int currentNode = minHeapArray[index];
 
 	int leftChildIndex = getLeftChildIndex(index);
@@ -133,14 +162,14 @@ void minHeap::reheapthearray(int index)
 
 	if(leftChildIndex <= capacity() && leftChild < currentNode && leftChild != 0)
 	{
-		std:: cout << "Picking leftChildIndex" << std::endl;
+		// std:: cout << "Picking leftChildIndex" << std::endl;
 		smallestValueIndex = leftChildIndex;
 		currentNode = leftChild;
 	}
 	
 	if(rightChildIndex <= capacity() && rightChild < currentNode && rightChild != 0)
 	{
-		std:: cout << "Picking rightChildIndex" << std::endl;
+		// std:: cout << "Picking rightChildIndex" << std::endl;
 		smallestValueIndex = rightChildIndex;
 	}
 
@@ -149,28 +178,32 @@ void minHeap::reheapthearray(int index)
 		return;
 	}
 
-	std::cout <<"startswap" << std::endl;
+	// std::cout <<"startswap" << std::endl;
 	swap(index, smallestValueIndex);
 	reheapthearray(smallestValueIndex);
 
 }
 
-int minHeap::capacity() const
+template<class T>
+int minHeap<T>::capacity() const
 {
 	return (pow(2, capacityMultiple)-1);
 }
 
-bool minHeap::empty() const
+template<class T>
+bool minHeap<T>::empty() const
 {
 	return 0 == amountOfElements;
 }
 
-bool minHeap::full() const
+template<class T>
+bool minHeap<T>::full() const
 {
 	return size() == capacity();
 }
 
-int minHeap::top() const
+template<class T>
+T minHeap<T>::top() const
 {
 	if(!empty())
 	{
@@ -182,25 +215,24 @@ int minHeap::top() const
 	return 0;
 }
 
-void minHeap::push(int val)
+template<class T>
+void minHeap<T>::push(T val)
 {
-
-	/*
 	if(full())
 	{
 		resize();
 	}
-	*/
-
-	if(full())
-	{
-		std::cout << "min-heap is full!" << std::endl;
-		return;
-	}
+	
+	//From old implementation without resizing
+	// if(full())
+	// {
+	// 	std::cout << "min-heap is full!" << std::endl;
+	// 	return;
+	// }
 
 	//get very last index available
 	int index = amountOfElements + 1;
-	std::cout << "index of insertion = " << index<< std::endl;
+	// std::cout << "index of insertion = " << index<< std::endl;
 
 	minHeapArray[index] = val;
 
@@ -208,19 +240,21 @@ void minHeap::push(int val)
 
 	while(index != 1 && minHeapArray[index] < minHeapArray[getParentIndex(index)])
 	{
-		std::cout << "Swapping: " << minHeapArray[index] << " with " << minHeapArray[getParentIndex(index)] << std::endl;
+		// std::cout << "Swapping: " << minHeapArray[index] << " with " << minHeapArray[getParentIndex(index)] << std::endl;
 		swap(index, getParentIndex(index));
 		index = getParentIndex(index);
 	}
 
 	amountOfElements +=1;
+	sum+=val;
 }
 
-void minHeap::print() const
+template<class T>
+void minHeap<T>::print() const
 {
 	for(int i = 1; i <=capacity(); i++)
 	{
-		std::cout << "NodeVal: " <<minHeapArray[i]; 
+		std::cout << "NodeVal: " << minHeapArray[i]; 
 
 		if(minHeapArray[getLeftChildIndex(i)] != 0)
 		{
@@ -238,13 +272,10 @@ void minHeap::print() const
 	std::cout << std::endl;
 }
 
-void minHeap::swap(int pos1, int pos2)
+template<class T>
+void minHeap<T>::swap(int pos1, int pos2)
 {
-	int temp = minHeapArray[pos1];
+	T temp = minHeapArray[pos1];
 	minHeapArray[pos1] = minHeapArray[pos2];
 	minHeapArray[pos2] = temp;
 }
-
-//				1
-//	 2				  3
-//4		5			6	7

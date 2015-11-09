@@ -2,54 +2,84 @@
 #include <iostream> 
 int main()	
 {
-	minHeap* a = new minHeap();
+	minHeap<int>* a = new minHeap<int>();
+	
 	a->push(5);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
+	// std::cout<< "Top: " << a->top() << std::endl;
 
 	a->push(2);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
-
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(6);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(1);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(9);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(65);
-	a->print();
-	std::cout<< "\n" << std::endl;
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(7);
-	a->print();
-
-	std::cout<< "\n" << std::endl;
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
 	a->push(3);
-	a->print();
+//	std::cout<< "Top: " << a->top() <<// std::endl;
 
-	//top and pop test
+	// a->push(3);
 
-	std::cout << a->top() << std::endl;
+	// a->push(3);
+
+	std::cout << "sum: " << a->getSum() << std::endl;
+
+
+	std::cout << "Empty: " << a->empty() << std::endl;
+
+	//std::cout << "Sum: " << a->getSum() << std::endl;
+	std::cout << "Amount of elements " << a->size() << std::endl;
+
+	std::cout <<"\nStarting the popping:\n"<<std::endl;
+
+	std::cout<< "Top: " << a->top() << std::endl;
 	a->pop();
-	a->print();
+	std::cout<< "Top: " << a->top() << std::endl;
 
 	a->pop();
-	a->print();
+	std::cout<< "Top: " << a->top() << std::endl;
 
-	// a->pop();
-	// a->print();
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	a->pop();
+	std::cout<< "Top: " << a->top() << std::endl;
+
+	std::cout << "Empty: " << a->empty() << std::endl;
+
+	a->pop();
+	std::cout << "Top: " << a->top() << std::endl;
+
+	std::cout << "Empty: " << a->empty() << std::endl;
+
+
+	// std::cout << "Sum: " << a->getSum() << std::endl;
+	std::cout << "sum: " << a->getSum() << std::endl;
+
+	delete a;
 }
