@@ -15,6 +15,8 @@
 
 //Made with Love, Top Down Design, and Test Driven Development
 
+//toDo
+//implement destructor and creation of all dynamic memory
 
 int stringToInt(std::string str)
 {
@@ -48,21 +50,21 @@ int main()
 	std::cout << "Enter Node A and Node B and Undirected Edge Weights(s):" << std::endl;
 	for(int i = 0; i < params[1]; i++)
 	{
-		//forrestDesign[0] is Node A, forrestDesign[1] is Node B, forrestDesign[2] is undirected edge weight
-		int forrestDesign [3];
+		//forestDesign[0] is Node A, forestDesign[1] is Node B, forestDesign[2] is undirected edge weight
+		int forestDesign [3];
 		getline(std::cin, inputString);
 
 		//populate the array of parameters with error handling
 		try
 		{
-			forrestDesign[0] = stringToInt(inputString.substr(0, inputString.find(' ')));
+			forestDesign[0] = stringToInt(inputString.substr(0, inputString.find(' ')));
 			inputString = inputString.substr(inputString.find(' ') +1);
-			forrestDesign[1] = stringToInt(inputString.substr(0, inputString.find(' ')));
-			forrestDesign[2] = stringToInt(inputString.substr(inputString.find(' ')));
+			forestDesign[1] = stringToInt(inputString.substr(0, inputString.find(' ')));
+			forestDesign[2] = stringToInt(inputString.substr(inputString.find(' ')));
 
-			// std::cout << forrestDesign[0] << std::endl;
-			// std::cout << forrestDesign[1] << std::endl;
-			// std::cout << forrestDesign[2] << std::endl;
+			// std::cout << forestDesign[0] << std::endl;
+			// std::cout << forestDesign[1] << std::endl;
+			// std::cout << forestDesign[2] << std::endl;
 		}
 		catch(const std::out_of_range &e)
 		{
@@ -72,13 +74,15 @@ int main()
 		}
 
 		// if node A > nodes or node B >= nodes then handle this
-		if(forrestDesign[0] >=  params[0] || forrestDesign[1] >= params[0])
+		if(forestDesign[0] >=  params[0] || forestDesign[1] >= params[0])
 		{
 			std::cout << "You chose invalid node, please reenter parameters with nodes being between 0 and " << params[0]-1 << std::endl;
 			i--;
 			continue;
 		}
 
-		k->load(forrestDesign);
+		k->load(forestDesign);
 	}
+
+	k->solve();
 }
