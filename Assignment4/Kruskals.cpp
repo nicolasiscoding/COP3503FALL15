@@ -1,7 +1,16 @@
 #include "hblt.cpp"
 #include <stack>
+#include <queue>
 
 //declaring up here because it revoles some issues that are south of this 
+
+//Name:				Nicolas Fry
+//UF ID:			
+//GatorID:			nicolascoding
+//Discussion Section: 1085
+//Assignment 4
+//Kruskals Algorithm with non unionjoin implementation
+
 struct edge;
 class Kruskals
 {
@@ -9,17 +18,20 @@ class Kruskals
 		Kruskals(int nodes, int edges);
 		void load(int (&e)[3]);
 		void solve();
-		void print();
+		void print(int &start);
 		void printRaw();
+		~Kruskals();
 
 	private:
 		int numNodes;
 		int numEdges;
-		int** forest;
+		int** forestDir1;
+		int** forestDir2;
 		hblt<edge> * edgesMinPQ;
 
 		bool hasCycle(int &startingIndex);
 		bool recursiveHasCycles(std::stack<int> * toProcess, bool * visitTracker);
+		void printBFS(int &totalweight, std::queue<int> * toProcess, bool* hasVisited);
 };
 
 struct edge
@@ -66,29 +78,47 @@ Kruskals::Kruskals(int nodes, int edges)
 	numEdges = edges;
 
 	//for sake of mapping, add 1 so all indicies will be mapped easily
-	forest = new int*[numNodes];
+	forestDir1 = new int*[numNodes];
+	forestDir2 = new int*[numNodes];
+	edgesMinPQ = new hblt<edge>();
+
 	for(int i = 0; i < numNodes; i++)
 	{
-		forest[i] = new int[numNodes];
+		forestDir1[i] = new int[numNodes];
+		forestDir2[i] = new int[numNodes];
+
 	}
 	// std::cout << "tp1" << std::endl;
-	// forest[1][1] = 9;
+	// forestDir1[1][1] = 9;
 
 	for(int i = 0; i < numNodes; i++)
 	{
 		for(int j = 0; j < numNodes; j++)
 		{
 			// std::cout << "tp2" << std::endl;
-			forest[i][j] = -1;
+			forestDir1[i][j] = -1;
+			forestDir2[i][j] = -1;
 		}
 	}
+}
+
+Kruskals::~Kruskals()
+{
+	for(int i = 0; i < numNodes; i++)
+	{
+		delete forestDir1[i];
+		delete forestDir2[i];
+	}
+
+	delete forestDir1;
+	delete forestDir2;
+	delete edgesMinPQ;
 }
 
 //pass a three parameter array of Node A, Node B, and Undirectred edge weight respectiely
 void Kruskals::load(int (&paramterArr)[3])
 {
 	//reusing height biased leftist tree from last assignment to impleent min-priority queue
-	edgesMinPQ = new hblt<edge>();
 	edge * e = new edge();
 	e->weight = paramterArr[2];
 	e->nodeA = paramterArr[0];
@@ -101,39 +131,54 @@ void Kruskals::load(int (&paramterArr)[3])
 
 void Kruskals::solve()
 {
-	//def of spanning tree is (numEdges - 1)
-	int edgecount = 0;
-	while(edgecount != (numEdges-1) && !edgesMinPQ->empty())
+
+	if(numNodes == 1)
 	{
+		// std::cout << "Just one node? that's it?" << std::endl;
+		// int passbyreference = 0;
+		// print(passbyreference);
+		return;
+	}
+
+	int edgecount = 0;
+	while(edgecount != (numNodes-1) && !edgesMinPQ->empty())
+	{
+		// std::cout << "Edgecount: " << edgecount << std::endl;
+		// std::cout << "numEdges: " << numEdges << std::endl;
+		// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
+
 		edge * e = edgesMinPQ->top();
 
 		//in this case, there is more than one way to get to a certain node (that is non-minimum) OR it is a loop to itself 
-		if(forest[e->nodeA][e->nodeB] != -1 || forest[e->nodeB][e->nodeA] != -1 || e->nodeA == e->nodeB)
+		if(forestDir1[e->nodeA][e->nodeB] != -1 || forestDir2[e->nodeB][e->nodeA] != -1 || e->nodeA == e->nodeB)
 		{
 			//the pop function deletes the pointer
-			std::cout << "edge connects node to itself OR there is already a minimum value obtained" << std::endl;
+			// std::cout << "edge connects node to itself OR there is already a minimum value obtained" << std::endl;
 			edgesMinPQ->pop();
 			continue;
 		}
 
 		//set edge in forrest
-		forest[e->nodeA][e->nodeB] = e->weight;
-		forest[e->nodeB][e->nodeA] = e->weight;
+		// std::cout << "Setting edge weight: " << e->weight << std::endl; 
+		forestDir1[e->nodeA][e->nodeB] = e->weight;
+		forestDir2[e->nodeB][e->nodeA] = e->weight;
 		edgecount++;
 
 		//if it causes a cycle, remove edge
+		// printRaw();
 		if(hasCycle(e->nodeA))
 		{
-			forest[e->nodeA][e->nodeB] = -1;
-			forest[e->nodeB][e->nodeA] = -1;
+			forestDir1[e->nodeA][e->nodeB] = -1;
+			forestDir2[e->nodeB][e->nodeA] = -1;
 			edgecount--;
 		}
-
 		//remove minimum edge from minPQ
 		edgesMinPQ->pop();
 
-		printRaw();
-		std::cout << "Printed!" << std::endl;
+		// printRaw();
+		// std::cout << "Printed!" << std::endl;
+
+
 	}
 }
 
@@ -149,41 +194,146 @@ bool Kruskals::hasCycle(int &startingIndex)
 	std::stack<int> * toVisit = new std::stack<int>;
 	toVisit->push(startingIndex);
 
-	return recursiveHasCycles(toVisit, hasVisited);
+	// std::cout << toVisit->top() << std::endl;
+
+	bool ret = recursiveHasCycles(toVisit, hasVisited);
+
+	delete hasVisited;
+	delete toVisit;
+
+	return ret;
 }
 
 //initialize DFS search
 bool Kruskals::recursiveHasCycles(std::stack<int> * toProcess, bool * hasVisited)
 {
+	// std::cout << "\n\nIteration of recursion" << std::endl;
+	if(toProcess->empty())
+	{
+		return false;
+	}
+
 	int next = toProcess->top();
+	toProcess->pop();
+	// std::cout << "Next: " << next << std::endl;
 	hasVisited[next] = true;
+
 	for(int i = 0; i < numNodes; i++)
 	{
-		int check = forest[next][i];
-		if(check == -1)
+		//if there is not a connection, and it is not the same node we just came from then check to see if we visited it, otherwise add it to the stack
+		// std::cout << "i: " << i << std::endl; 
+		// std:: cout << "forestDir1[next][i]: " << forestDir1[next][i] << std::endl;
+
+		if(forestDir1[next][i] != -1 && i != next)
 		{
-			continue;
+			int check = i;
+
+			if(hasVisited[check])
+			{
+				// std::cout << "Returning true!" << std::endl;
+				return true;
+			}
+
+			// std::cout << "Pushing value " << check << " into stack." << std::endl;
+			toProcess->push(check);
 		}
-
-		if(hasVisited[check])
-		{
-			return true;
-		}
-
-		// toProcess->push(forest[check]);
-
 	}
+	//toProcess->pop();
+
+	recursiveHasCycles(toProcess, hasVisited);
 }
 
 void Kruskals::printRaw()
 {
+	//dir1
+	std::cout << "Dir1:" << std::endl;
 	for(int i = 0; i < numNodes; i++)
 	{
 		for(int j = 0; j < numNodes; j++)
 		{
-			std::cout << forest[i][j] << "\t";
+			std::cout << forestDir1[i][j] << "\t";
 		}
 
 		std::cout << std::endl;
 	}
+
+	//dir2
+	std::cout << "Dir2:" << std::endl;
+	for(int i = 0; i < numNodes; i++)
+	{
+		for(int j = 0; j < numNodes; j++)
+		{
+			std::cout << forestDir2[i][j] << "\t";
+		}
+
+		std::cout << std::endl;
+	}
+}
+
+//essentially a BFS
+void Kruskals::print(int &start)
+{
+	int totalweight = 0;
+
+	bool * hasVisited = new bool[numNodes];
+
+	for(int i = 0; i < numNodes; i++)
+	{
+		hasVisited[i] = false;
+	}
+
+	std::queue<int> * toVisit = new std::queue<int>;
+	toVisit->push(start);
+
+	std::cout << "Prim's MST:" << std::endl;
+
+	if(numNodes == 1)
+	{
+		std::cout << "(0)" << std::endl;
+	}
+	else
+	{
+		printBFS(totalweight, toVisit, hasVisited);
+	}
+
+	std::cout << "Totalweight: " << totalweight << std::endl;
+
+	delete hasVisited;
+	delete toVisit;
+}
+
+void Kruskals::printBFS(int &totalweight, std::queue<int> * toProcess, bool* hasVisited)
+{
+	if(toProcess->empty())
+	{
+		return;
+	}
+
+	int val = toProcess->front();
+	toProcess->pop();
+
+	hasVisited[val] = true;
+
+	for(int i = 0; i < numNodes; i++)
+	{
+		//if we find a match
+		if(forestDir1[val][i] != -1 && !hasVisited[i])
+		{
+			toProcess->push(i);
+
+			//printing format
+			if(val < i)
+			{
+				std::cout << "(" << val << ", " << i << ")" << std::endl;
+			}
+			else
+			{
+				std::cout << "(" << i << ", " << val << ")" << std::endl;
+			}
+
+			totalweight += forestDir1[val][i];
+		}
+	}
+
+	printBFS(totalweight, toProcess, hasVisited);
 }

@@ -26,30 +26,69 @@ int stringToInt(std::string str)
 int main()
 {
 	//params[0] is nodes, params[1] is edges
-	int params [2];
+	int nodes = 0;
+	int edges = 0;
 
 	//take input
 	std::string inputString;
 	std::cout << "Enter number of Nodes and Edges(s):" << std::endl;
 
+	//consider parsing inputs where edges is at LEAST (nodes-1)
+
 	//parse input
-	getline(std::cin, inputString);
-	params[0] = stringToInt(inputString.substr(0, inputString.find(' ')));
-	params[1] = stringToInt(inputString.substr(inputString.find(' ')));
+	int invalidEntryCount = 1;
+	while(true)
+	{
+		getline(std::cin, inputString);
+
+		if(invalidEntryCount++ > 8)
+		{
+			std::cout << "Invalid input has been inputted more than 8 times" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+
+		try
+		{
+			nodes = stringToInt(inputString.substr(0, inputString.find(' ')));
+			edges = stringToInt(inputString.substr(inputString.find(' '))); 			
+		}
+		catch(const std::out_of_range &e)
+		{
+			std::cout << "Error, invalid input. edges must be AT LEAST one less than nodes, and you must have AT LEAST 1 node and nodes and edges must be positive" << std::endl;
+			continue;
+		}
+		
+		//if edges <= nodes-1, break
+		// std::cout << "Edges: " << edges << std::endl;
+		// std::cout << "Nodes: " << nodes << std::endl;
+		if(nodes-1 <= edges &&  nodes >= 1 && edges >= 0)
+		{
+			break;
+		}
+
+		std::cout << "Error, invalid input. edges must be AT LEAST one less than nodes, and you must have AT LEAST 1 node and nodes and edges must be positive" << std::endl;
+	}
+
 
 	//debug
 	// std::cout << params[0] << std::endl;
 	// std::cout << params[1] << std::endl;
 
 	//initialize algorithm classes
-	Kruskals * k = new Kruskals(params[0], params[1]);
+	Kruskals * k = new Kruskals(nodes, edges);
 	//BoruvkaSollin * bs = new BoruvkaSollin();
 	//Prims * p = new Prims();
 
 	//iterate through and figure out which nodes connect to each other
 	std::cout << "Enter Node A and Node B and Undirected Edge Weights(s):" << std::endl;
-	for(int i = 0; i < params[1]; i++)
+	invalidEntryCount = 1;
+	for(int i = 0; i < edges; i++)
 	{
+		if(invalidEntryCount > 8)
+		{
+			std::cout << "Invalid input has been inputted more than 8 times" << std::endl;
+			exit(EXIT_FAILURE);
+		}
 		//forestDesign[0] is Node A, forestDesign[1] is Node B, forestDesign[2] is undirected edge weight
 		int forestDesign [3];
 		getline(std::cin, inputString);
@@ -70,14 +109,16 @@ int main()
 		{
 			std::cout << "Invalid parameters, plese reenter them again" << std::endl;
 			i--;
+			invalidEntryCount++;
 			continue;
 		}
 
 		// if node A > nodes or node B >= nodes then handle this
-		if(forestDesign[0] >=  params[0] || forestDesign[1] >= params[0])
+		if(forestDesign[0] >=  nodes || forestDesign[1] >= nodes)
 		{
-			std::cout << "You chose invalid node, please reenter parameters with nodes being between 0 and " << params[0]-1 << std::endl;
+			std::cout << "You chose invalid node, please reenter parameters with nodes being between 0 and " << nodes-1 << std::endl;
 			i--;
+			invalidEntryCount++;
 			continue;
 		}
 
@@ -85,4 +126,31 @@ int main()
 	}
 
 	k->solve();
+
+	int startNode;
+	while(true)
+	{
+		std::cout << "Enter start Node: " << std::endl;
+		getline(std::cin, inputString);
+
+		try
+		{
+			startNode = stringToInt(inputString);
+		}
+		catch(const std::out_of_range &e)
+		{
+			std::cout << "Error, invalid input." << std::endl;
+			continue;
+		}
+
+		if(startNode >= 0 && startNode < nodes)
+		{
+			break;
+		}
+		std::cout << "Error, invalid input. Please input a valid starting point" << std::endl;
+	}
+
+	k->print(startNode);
+
+	delete k;
 }
