@@ -3,7 +3,8 @@
 #include <string>
 #include <algorithm>
 #include <typeinfo>
-
+#ifndef hblt_H
+#define hblt_H
 //Name:				Nicolas Fry
 //UF ID:			
 //GatorID:			nicolascoding
@@ -111,10 +112,11 @@ void hblt<T>::pop()
 
 	node* leftB = root->leftChild;
 	node* rightB = root->rightChild;
-	node* toDelete = root;
+	// node* toDelete = root;
 
 	root = meld(leftB, rightB);
-	delete toDelete;
+	//for this project, I commented this out because I do not want to lose the node at the pointer address
+	// delete toDelete;
 	amountOfElements-=1;
 }		
 
@@ -235,5 +237,5 @@ void hblt<T>::deleteAllSouthof(node* n)
 	deleteAllSouthof(RightbranchNode);
 }
 
-
+#endif
 

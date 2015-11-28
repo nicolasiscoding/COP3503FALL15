@@ -1,8 +1,7 @@
-#include "hblt.cpp"
 #include <stack>
 #include <queue>
+#include "hblt.h"
 
-//declaring up here because it revoles some issues that are south of this 
 
 //Name:				Nicolas Fry
 //UF ID:			
@@ -11,7 +10,10 @@
 //Assignment 4
 //Kruskals Algorithm with non unionjoin implementation
 
-struct edge;
+//To-Do:
+//implement Deletes wherever we pop because I commented out the delete in the HBLTs
+
+struct kruskaledge;
 class Kruskals
 {
 	public:
@@ -27,45 +29,45 @@ class Kruskals
 		int numEdges;
 		int** forestDir1;
 		int** forestDir2;
-		hblt<edge> * edgesMinPQ;
+		hblt<kruskaledge> * edgesMinPQ;
 
 		bool hasCycle(int &startingIndex);
 		bool recursiveHasCycles(std::stack<int> * toProcess, bool * visitTracker);
 		void printBFS(int &totalweight, std::queue<int> * toProcess, bool* hasVisited);
 };
 
-struct edge
+struct kruskaledge
 {
 	int weight;
 	int nodeA;
 	int nodeB;
 
-	friend bool operator>(edge &E1, edge &E2)
+	friend bool operator>(kruskaledge &E1, kruskaledge &E2)
 	{
 		return E1.weight > E2.weight;
 	}
 
-	friend bool operator<(edge &E1, edge &E2)
+	friend bool operator<(kruskaledge &E1, kruskaledge &E2)
 	{
 		return E1.weight < E2.weight;
 	}
 
-	friend bool operator>=(edge &E1, edge &E2)
+	friend bool operator>=(kruskaledge &E1, kruskaledge &E2)
 	{
 		return E1.weight >= E2.weight;
 	}
 
-	friend bool operator<=(edge &E1, edge &E2)
+	friend bool operator<=(kruskaledge &E1, kruskaledge &E2)
 	{
 		return E1.weight <= E2.weight;
 	}
 
-	friend bool operator==(edge &E1, edge &E2)
+	friend bool operator==(kruskaledge &E1, kruskaledge &E2)
 	{
 		return E1.weight == E2.weight;
 	}
 
-	friend std::ostream& operator<<(std::ostream &strm, const edge &e)
+	friend std::ostream& operator<<(std::ostream &strm, const kruskaledge &e)
 	{
   		return strm<<e.weight;
 	}
@@ -80,7 +82,7 @@ Kruskals::Kruskals(int nodes, int edges)
 	//for sake of mapping, add 1 so all indicies will be mapped easily
 	forestDir1 = new int*[numNodes];
 	forestDir2 = new int*[numNodes];
-	edgesMinPQ = new hblt<edge>();
+	edgesMinPQ = new hblt<kruskaledge>();
 
 	for(int i = 0; i < numNodes; i++)
 	{
@@ -115,11 +117,11 @@ Kruskals::~Kruskals()
 	delete edgesMinPQ;
 }
 
-//pass a three parameter array of Node A, Node B, and Undirectred edge weight respectiely
+//pass a three parameter array of Node A, Node B, and Undirectred kruskaledge weight respectiely
 void Kruskals::load(int (&paramterArr)[3])
 {
 	//reusing height biased leftist tree from last assignment to impleent min-priority queue
-	edge * e = new edge();
+	kruskaledge * e = new kruskaledge();
 	e->weight = paramterArr[2];
 	e->nodeA = paramterArr[0];
 	e->nodeB = paramterArr[1];
@@ -147,24 +149,24 @@ void Kruskals::solve()
 		// std::cout << "numEdges: " << numEdges << std::endl;
 		// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
 
-		edge * e = edgesMinPQ->top();
+		kruskaledge * e = edgesMinPQ->top();
 
 		//in this case, there is more than one way to get to a certain node (that is non-minimum) OR it is a loop to itself 
 		if(forestDir1[e->nodeA][e->nodeB] != -1 || forestDir2[e->nodeB][e->nodeA] != -1 || e->nodeA == e->nodeB)
 		{
-			//the pop function deletes the pointer
-			// std::cout << "edge connects node to itself OR there is already a minimum value obtained" << std::endl;
+			//NEED TO IMPLEMENT DELETE
+			// std::cout << "kruskaledge connects node to itself OR there is already a minimum value obtained" << std::endl;
 			edgesMinPQ->pop();
 			continue;
 		}
 
-		//set edge in forrest
-		// std::cout << "Setting edge weight: " << e->weight << std::endl; 
+		//set kruskaledge in forrest
+		// std::cout << "Setting kruskaledge weight: " << e->weight << std::endl; 
 		forestDir1[e->nodeA][e->nodeB] = e->weight;
 		forestDir2[e->nodeB][e->nodeA] = e->weight;
 		edgecount++;
 
-		//if it causes a cycle, remove edge
+		//if it causes a cycle, remove kruskaledge
 		// printRaw();
 		if(hasCycle(e->nodeA))
 		{
@@ -172,13 +174,11 @@ void Kruskals::solve()
 			forestDir2[e->nodeB][e->nodeA] = -1;
 			edgecount--;
 		}
-		//remove minimum edge from minPQ
+		//remove minimum kruskaledge from minPQ
 		edgesMinPQ->pop();
 
 		// printRaw();
 		// std::cout << "Printed!" << std::endl;
-
-
 	}
 }
 
@@ -322,7 +322,7 @@ void Kruskals::printBFS(int &totalweight, std::queue<int> * toProcess, bool* has
 			toProcess->push(i);
 
 			//printing format
-			if(val < i)
+			if(val <= i)
 			{
 				std::cout << "(" << val << ", " << i << ")" << std::endl;
 			}
