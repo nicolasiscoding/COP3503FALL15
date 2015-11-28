@@ -128,9 +128,6 @@ int main()
 		p->load(forestDesign);
 	}
 
-	k->solve();
-	p->solve();
-
 	int startNode;
 	while(true)
 	{
@@ -154,7 +151,12 @@ int main()
 		std::cout << "Error, invalid input. Please input a valid starting point" << std::endl;
 	}
 
+	k->solve();
+	p->solve(startNode);
+
 	k->print(startNode);
+	std::cout << std::endl;
+	p->print();
 
 	delete k;
 }

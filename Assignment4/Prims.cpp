@@ -19,8 +19,8 @@ class Prims
 	public:
 		Prims(int nodes, int edges);
 		void load(int (&e)[3]);
-		void solve();
-		void print(int &start);
+		void solve(int &startNode);
+		void print();
 		void printRaw();
 		~Prims();
 
@@ -172,13 +172,13 @@ void Prims::load(int (&e)[3])
 	edgeA->weight = weight;
 	edgeA->connectsTo = nodeB;
 
-	std::cout << "NodeA: " << nodeA << " connects to " << edgeA->connectsTo  << " with weight " << edgeA->weight <<std::endl;
+	// std::cout << "NodeA: " << nodeA << " connects to " << edgeA->connectsTo  << " with weight " << edgeA->weight <<std::endl;
 
 	primsedge * edgeB = new primsedge();
 	edgeB->weight = weight;
 	edgeB->connectsTo = nodeA;
 
-	std::cout << "NodeB: " << nodeB << " connects to " << edgeB->connectsTo <<  " with weight " << edgeB->weight <<std::endl;
+	// std::cout << "NodeB: " << nodeB << " connects to " << edgeB->connectsTo <<  " with weight " << edgeB->weight <<std::endl;
 
 
 	// forest[nodeA] = edgeB;
@@ -186,7 +186,7 @@ void Prims::load(int (&e)[3])
 
 	if(forest[nodeA] == 0)
 	{
-		std::cout << "Creating new node at " << nodeA << std::endl;
+		// std::cout << "Creating new node at " << nodeA << std::endl;
 		node * A = new node();
 		A->number = nodeA;
 		forest[nodeA] = A;
@@ -194,26 +194,27 @@ void Prims::load(int (&e)[3])
 
 	if(forest[nodeB] == 0)
 	{
-		std::cout << "Creating new node at " << nodeB << std::endl;
+		// std::cout << "Creating new node at " << nodeB << std::endl;
 		node * B = new node();
 		B->number = nodeB;
 		forest[nodeB] = B;
 	}
 
 	forest[nodeA]->edges->push(edgeA);
-	std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
+	// std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
 
 	forest[nodeB]->edges->push(edgeB);
-	std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
+	// std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
 
 	//debug
-	printForest();
+	// printForest();
 }
 
-void Prims::solve()
+void Prims::solve(int &startNode)
 {
 
-	std::cout << "beginning Prim's solve" << std::endl;
+	// std::cout << "\n\nBeginning Prim's solve\n" << std::endl;
+
 	//if there is one node, it is solved
 	if(numNodes == 1)
 	{
@@ -221,11 +222,16 @@ void Prims::solve()
 	}
 
 	bool hasVisited [numNodes];
+	for(int i = 0; i < numNodes; i++)
+	{
+		hasVisited[i] = false;
+	}
+
 	int edgecount = 0;
 
 	//start tree with initial node
-	hasVisited[0] = true;
-	tree->push(forest[0]);
+	hasVisited[startNode] = true;
+	tree->push(forest[startNode]);
 
 	// std::cout << *tree->top() << std::endl;
 
@@ -237,14 +243,15 @@ void Prims::solve()
 		//get the minimum edge off the node
 		primsedge * leastEdge = current->edges->top();
 
-		std::cout << "minimum node: " << *current << std::endl;
-		std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
+		// std::cout << "minimum node: " << *current << std::endl;
+		// std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
 
 		//if we have visited the connecting vertex, pop the minimum connecting edge, pop the node from the tree, and
 		//reinsert node to tree to get it to find next minimum edge and continue
+		std:: cout << "hasVisited: " << hasVisited[leastEdge->connectsTo] << std::endl;
 		if(hasVisited[leastEdge->connectsTo])
 		{
-			std::cout << "TP1" << std::endl;
+			// std::cout << "TP1" << std::endl;
 			current->edges->pop();
 			delete leastEdge;
 
@@ -305,6 +312,24 @@ void Prims::printForest()
 	}
 
 	std::cout <<"\n"<< std::endl;
+}
+
+void Prims:: print()
+{
+	std::cout << "Prim's MST:" << std::endl;
+	int totalweight = 0;
+	if(numNodes == 1)
+	{
+		std::cout << "(0)" << std::endl;
+	}
+
+	for(int i = 0; i < numNodes-1; i++)
+	{
+		std::cout << psolution[i] << std::endl;
+		totalweight += psolution[i].weight;
+	}
+
+	std::cout <<  "Totalweight: " << totalweight << std::endl;
 }
 
 

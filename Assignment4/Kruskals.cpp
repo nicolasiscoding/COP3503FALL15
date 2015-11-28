@@ -285,7 +285,7 @@ void Kruskals::print(int &start)
 	std::queue<int> * toVisit = new std::queue<int>;
 	toVisit->push(start);
 
-	std::cout << "Prim's MST:" << std::endl;
+	std::cout << "Kruskals's MST:" << std::endl;
 
 	if(numNodes == 1)
 	{
