@@ -154,7 +154,7 @@ int main()
 	k->solve();
 	p->solve(startNode);
 
-	k->print(startNode);
+	k->print();
 	std::cout << std::endl;
 	p->print();
 

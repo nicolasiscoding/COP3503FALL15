@@ -20,7 +20,7 @@ class Kruskals
 		Kruskals(int nodes, int edges);
 		void load(int (&e)[3]);
 		void solve();
-		void print(int &start);
+		void print();
 		void printRaw();
 		~Kruskals();
 
@@ -271,7 +271,7 @@ void Kruskals::printRaw()
 }
 
 //essentially a BFS
-void Kruskals::print(int &start)
+void Kruskals::print()
 {
 	int totalweight = 0;
 
@@ -283,7 +283,7 @@ void Kruskals::print(int &start)
 	}
 
 	std::queue<int> * toVisit = new std::queue<int>;
-	toVisit->push(start);
+	toVisit->push(0);
 
 	std::cout << "Kruskals's MST:" << std::endl;
 

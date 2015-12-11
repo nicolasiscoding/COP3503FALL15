@@ -76,6 +76,7 @@ struct node
 {
 	hblt<primsedge> * edges;
 	int number;
+	bool noMoreEdges;
 
 	node()
 	{
@@ -91,27 +92,69 @@ struct node
 	//compare to see who has the smallest primsedge
 	friend bool operator>(node &N1, node &N2)
 	{
-		return N1.edges->top() > N2.edges->top();
+		if(N1.edges->top() == 0 || N1.noMoreEdges)
+			return 0;
+
+		if(N2.edges->top() == 0 || N2.noMoreEdges)
+			return 1;
+
+		// std::cout << "Less than" << std::endl;
+
+		// std::cout << N1.edges->top() << std::endl;
+		// std::cout << N2.edges->top() <<std::endl;
+
+		// std::cout << "N1 edge:" << *N1.edges->top() << std::endl;
+		// std::cout << "N2 edge:" << *N2.edges->top() << std::endl;
+
+		return *N1.edges->top() > *N2.edges->top();
 	}
 
 	friend bool operator<(node &N1, node &N2)
 	{
-		return N1.edges->top() < N2.edges->top();
+
+		if(N1.edges->top() == 0 || N1.noMoreEdges)
+			return 1;
+
+		if(N2.edges->top() == 0 || N2.noMoreEdges)
+			return 0;
+
+		// std::cout << "N1 edge:" << *N1.edges->top() << std::endl;
+		// std::cout << "N2 edge:" << *N2.edges->top() << std::endl;
+
+		return *N1.edges->top() < *N2.edges->top();
 	}
 
 	friend bool operator>=(node &N1, node &N2)
 	{
-		return N1.edges->top() >= N2.edges->top();
+		if(N1.edges->top() == 0 || N1.noMoreEdges) 
+			return 0;
+
+		if(N2.edges->top() == 0 || N2.noMoreEdges)
+			return 1;
+
+		return *N1.edges->top() >= *N2.edges->top();
 	}
 
 	friend bool operator<=(node &N1, node &N2)
 	{
-		return N1.edges->top() <= N2.edges->top();
+		if(N1.edges->top() == 0 || N1.noMoreEdges)
+			return 1;
+
+		if(N2.edges->top() == 0 || N2.noMoreEdges)
+			return 0;
+
+		// std::cout << "N1 edge:" << *N1.edges->top() << std::endl;
+		// std::cout << "N2 edge:" << *N2.edges->top() << std::endl;
+
+		return *N1.edges->top() <= *N2.edges->top();
 	}
 
 	friend bool operator==(node &N1, node &N2)
 	{
-		return N1.edges->top() == N2.edges->top();
+		if(N1.noMoreEdges || N2.noMoreEdges)
+			return 0;
+
+		return *N1.edges->top() == *N2.edges->top();
 	}
 
 	friend std::ostream& operator<<(std::ostream &strm, const node &e)
@@ -171,12 +214,14 @@ void Prims::load(int (&e)[3])
 	primsedge * edgeA = new primsedge();
 	edgeA->weight = weight;
 	edgeA->connectsTo = nodeB;
+	// edgeA->used = 0;
 
 	// std::cout << "NodeA: " << nodeA << " connects to " << edgeA->connectsTo  << " with weight " << edgeA->weight <<std::endl;
 
 	primsedge * edgeB = new primsedge();
 	edgeB->weight = weight;
 	edgeB->connectsTo = nodeA;
+	// edgeB->used = 0;
 
 	// std::cout << "NodeB: " << nodeB << " connects to " << edgeB->connectsTo <<  " with weight " << edgeB->weight <<std::endl;
 
@@ -189,6 +234,7 @@ void Prims::load(int (&e)[3])
 		// std::cout << "Creating new node at " << nodeA << std::endl;
 		node * A = new node();
 		A->number = nodeA;
+		A->noMoreEdges = 0;
 		forest[nodeA] = A;
 	}
 
@@ -197,14 +243,15 @@ void Prims::load(int (&e)[3])
 		// std::cout << "Creating new node at " << nodeB << std::endl;
 		node * B = new node();
 		B->number = nodeB;
+		B->noMoreEdges = 0;
 		forest[nodeB] = B;
 	}
 
 	forest[nodeA]->edges->push(edgeA);
-	// std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
+	std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
 
 	forest[nodeB]->edges->push(edgeB);
-	// std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
+	std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
 
 	//debug
 	// printForest();
@@ -213,7 +260,7 @@ void Prims::load(int (&e)[3])
 void Prims::solve(int &startNode)
 {
 
-	// std::cout << "\n\nBeginning Prim's solve\n" << std::endl;
+	std::cout << "\n\nBeginning Prim's solve\n" << std::endl;
 
 	//if there is one node, it is solved
 	if(numNodes == 1)
@@ -229,7 +276,7 @@ void Prims::solve(int &startNode)
 
 	int edgecount = 0;
 
-	//start tree with initial node
+ 	//start tree with initial node
 	hasVisited[startNode] = true;
 	tree->push(forest[startNode]);
 
@@ -240,31 +287,50 @@ void Prims::solve(int &startNode)
 		//get the node with the minimum connecting edge weight
 		node * current = tree->top();
 
+		std::cout << "\n\nCurrent: " << *current << std::endl;
+		std::cout << "Tree size: " << tree->size() << std::endl;
+
+		if(current->edges->empty())
+		{
+			std::cout << "noMoreEdges case" << std::endl;
+			current->noMoreEdges = true;
+			tree->pop();
+
+			// tree->push(current);
+			continue;
+		}
+
 		//get the minimum edge off the node
 		primsedge * leastEdge = current->edges->top();
 
-		// std::cout << "minimum node: " << *current << std::endl;
-		// std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
+		// std::cout << "TP2" << std::endl;
+
+		std::cout << "minimum node: " << *current << std::endl;
+		std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
 
 		//if we have visited the connecting vertex, pop the minimum connecting edge, pop the node from the tree, and
 		//reinsert node to tree to get it to find next minimum edge and continue
 		std:: cout << "hasVisited: " << hasVisited[leastEdge->connectsTo] << std::endl;
 		if(hasVisited[leastEdge->connectsTo])
 		{
-			// std::cout << "TP1" << std::endl;
+			// std::cout << "hasVisitedCase" << std::endl;
 			current->edges->pop();
 			delete leastEdge;
 
+			// std::cout << "Current edge's top: " << *current->edges->top() << std::endl;
+
+			// std::cout << "Old Top:" << *tree->top() << std::endl;
 			tree->pop();
+			// std::cout << "New Top:" << *tree->top() << std::endl;
 			tree->push(current);
+			// std::cout << "Top after insert:" << *tree->top() << std::endl;
+
+			// std::cout << "Finishing hasVisitedCase:"  << std::endl;
 			continue;
 		}
 
 		//goes to the node pointer array and get the next node to add
 		node * toAdd = forest[leastEdge->connectsTo];
-
-		//push this node into the tree to get the next minimum edge to be on the top
-		tree->push(toAdd);
 
 		//visit this node
 		hasVisited[leastEdge->connectsTo] = true;
@@ -274,19 +340,25 @@ void Prims::solve(int &startNode)
 		p.nodeA = current->number;
 		p.nodeB = toAdd->number;
 		p.weight = leastEdge->weight;
+		print();
 
 		//store solution
 		psolution[edgecount] = p;
 
-		//delete edge 
+		//delete edge
 		current->edges->pop();
 		delete leastEdge;
 
 		//reinsert current node into tree to recalculate new minimums
+		// std::cout << "Old Top:" << *tree->top() << std::endl;
 		tree->pop();
+		// std::cout << "New Top:" << *tree->top() << std::endl;
 		tree->push(current);
-
+		// std::cout << "Top after insert:" << *tree->top() << std::endl;
 		edgecount++;
+
+		//push this node into the tree to get the next minimum edge to be on the top
+		tree->push(toAdd);
 	}
 }
 
