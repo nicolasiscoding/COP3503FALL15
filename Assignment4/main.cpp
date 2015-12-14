@@ -6,6 +6,7 @@
 #include <stdlib.h> 
 #include "Kruskals.cpp"
 #include "Prims.cpp"
+#include "BoruvkaSollins.cpp"
 
 
 //Name:				Nicolas Fry
@@ -78,7 +79,7 @@ int main()
 
 	//initialize algorithm classes
 	Kruskals * k = new Kruskals(nodes, edges);
-	// BoruvkaSollin * bs = new BoruvkaSollin(nodes, edges);
+	BoruvkaSollins * bs = new BoruvkaSollins(nodes, edges);
 	Prims * p = new Prims(nodes, edges);
 
 	//iterate through and figure out which nodes connect to each other
@@ -126,6 +127,7 @@ int main()
 
 		k->load(forestDesign);
 		p->load(forestDesign);
+		bs->load(forestDesign);
 	}
 
 	int startNode;
@@ -153,6 +155,7 @@ int main()
 
 	k->solve();
 	p->solve(startNode);
+	bs->solve();
 
 	k->print();
 	std::cout << std::endl;

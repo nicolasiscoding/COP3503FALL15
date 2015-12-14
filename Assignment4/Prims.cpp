@@ -193,15 +193,6 @@ Prims::Prims(int nodes, int edges)
 	}
 
 	psolution = new PrimSolution[numNodes-1];
-
-	// for(int i = 0; i < numNodes; i++)
-	// {
-	// 	for(int j = 0; j < numNodes; j++)
-	// 	{
-	// 		// std::cout << "tp2" << std::endl;
-	// 		forest[i][j] = -1;			
-	// 	}
-	// }
 };
 
 //pass a three parameter array of Node A, Node B, and Undirectred primsedge weight respectiely
@@ -248,10 +239,10 @@ void Prims::load(int (&e)[3])
 	}
 
 	forest[nodeA]->edges->push(edgeA);
-	std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
+	// std::cout << "Top of node A's edges: " << *forest[nodeA]->edges->top() << std::endl;
 
 	forest[nodeB]->edges->push(edgeB);
-	std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
+	// std::cout << "Top of node B's edges: " << *forest[nodeB]->edges->top() << std::endl;
 
 	//debug
 	// printForest();
@@ -287,12 +278,12 @@ void Prims::solve(int &startNode)
 		//get the node with the minimum connecting edge weight
 		node * current = tree->top();
 
-		std::cout << "\n\nCurrent: " << *current << std::endl;
-		std::cout << "Tree size: " << tree->size() << std::endl;
+		// std::cout << "\n\nCurrent: " << *current << std::endl;
+		// std::cout << "Tree size: " << tree->size() << std::endl;
 
 		if(current->edges->empty())
 		{
-			std::cout << "noMoreEdges case" << std::endl;
+			// std::cout << "noMoreEdges case" << std::endl;
 			current->noMoreEdges = true;
 			tree->pop();
 
@@ -305,12 +296,12 @@ void Prims::solve(int &startNode)
 
 		// std::cout << "TP2" << std::endl;
 
-		std::cout << "minimum node: " << *current << std::endl;
-		std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
+		// std::cout << "minimum node: " << *current << std::endl;
+		// std::cout << "least edge weight: " << leastEdge->weight << " least edge connecting to " << leastEdge->connectsTo << std::endl;
 
 		//if we have visited the connecting vertex, pop the minimum connecting edge, pop the node from the tree, and
 		//reinsert node to tree to get it to find next minimum edge and continue
-		std:: cout << "hasVisited: " << hasVisited[leastEdge->connectsTo] << std::endl;
+		// std:: cout << "hasVisited: " << hasVisited[leastEdge->connectsTo] << std::endl;
 		if(hasVisited[leastEdge->connectsTo])
 		{
 			// std::cout << "hasVisitedCase" << std::endl;
@@ -340,7 +331,7 @@ void Prims::solve(int &startNode)
 		p.nodeA = current->number;
 		p.nodeB = toAdd->number;
 		p.weight = leastEdge->weight;
-		print();
+		// print();
 
 		//store solution
 		psolution[edgecount] = p;
