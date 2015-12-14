@@ -164,4 +164,6 @@ int main()
 	bs->print();
 
 	delete k;
+	delete p;
+	delete bs;
 }

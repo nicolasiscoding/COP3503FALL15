@@ -179,6 +179,18 @@ struct PrimSolution
 	}
 };
 
+Prims::~Prims()
+{
+	delete psolution;
+	delete tree;
+	for(int i = 0; i < numNodes; i++)
+	{
+		delete forest[i];
+	}
+
+	delete forest;
+}
+
 Prims::Prims(int nodes, int edges)
 {
 	numNodes = nodes;

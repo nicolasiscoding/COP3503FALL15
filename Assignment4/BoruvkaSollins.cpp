@@ -108,6 +108,14 @@ BoruvkaSollins::BoruvkaSollins(int nodes, int edges)
 	}
 }
 
+BoruvkaSollins::~BoruvkaSollins()
+{
+	for(int i = 0; i < queue.size(); i++)
+	{
+		delete queue[i];
+	}
+};
+
 void BoruvkaSollins::load(int (&e)[3])
 {
 	// std::cout << "TP4" << std::endl;
@@ -143,8 +151,6 @@ void BoruvkaSollins::load(int (&e)[3])
 		queue[nodeB]->vertexs.push_back(nodeB);
 	}
 
-	// std::cout << "queue[nodeA]: " << queue[nodeA] << " queue[nodeB]: " << queue[nodeB] << std::endl;
-
 	queue[nodeA]->edges->push(edgeA);
 
 	queue[nodeB]->edges->push(edgeB);
@@ -152,17 +158,18 @@ void BoruvkaSollins::load(int (&e)[3])
 
 void BoruvkaSollins::print()
 {
-
+	//printing backwards because supposedly order matters.... (I disagree because its a MST but whatever)
 	std::cout << "BoruvkaSollins's MST:" << std::endl;
 
 	if(numNodes == 1)
 	{
 		std::cout << "(0)" << std::endl;
+		std::cout << "Totalweight: " << 0 << std::endl;
 		return;
 	}
 
 	int totalweight = 0;
-	for(int i = 0; i < solution.size(); i++)
+	for(int i = (solution.size()-1); i >= 0; i--)
 	{
 		totalweight+=solution[i].weight;
 		if(solution[i].toNode <= solution[i].FromNode)
@@ -182,22 +189,22 @@ void BoruvkaSollins::solve()
 
 	while(queue.size() != 1)
 	{
-		// //temp print queue: UNCOMMENT FOR DEBUG
-		// std::cout << "print queue:" << std::endl;
-		// for(int i = 0; i < queue.size(); i++)
-		// {
-		// 	component *print = queue[i];
+		//temp print queue: UNCOMMENT FOR DEBUG
+		std::cout << "print queue:" << std::endl;
+		for(int i = 0; i < queue.size(); i++)
+		{
+			component *print = queue[i];
 
-		// 	std::cout << "Component " << i << ": ";
+			std::cout << "Component " << i << ": ";
 
-		// 	for(int j = 0; j < print->vertexs.size(); j++)
-		// 	{
-		// 		std::cout << (print->vertexs[j]) << ",    ";
-		// 	}
-		// 	std::cout<<"\n" << std::endl;
-		// }
-		// std::cout<<"\n" << std::endl;
-		// //endtempprint
+			for(int j = 0; j < print->vertexs.size(); j++)
+			{
+				std::cout << (print->vertexs[j]) << ",    ";
+			}
+			std::cout<<"\n" << std::endl;
+		}
+		std::cout<<"\n" << std::endl;
+		//endtempprint
 
 		//back is technically the first element
 		component * front = queue.back();
@@ -205,10 +212,18 @@ void BoruvkaSollins::solve()
 
 		//figure out the node to add to this component
 		int connectingTo = minEdge->toNode;
-		// std::cout << "BSedge: " << *minEdge << std::endl;
+		std::cout << "BSedge: " << *minEdge << std::endl;
 
 		//pop current minimum edge
 		front->edges->pop();
+
+		//case when graph connects to itself because the TA's are being sinister today
+		// if(minEdge->toNode == minEdge->FromNode)
+		// {
+		// 	//need the additional pop
+		// 	front->edges->pop();
+		// 	continue;
+		// }
 
 		//Go to second to last node because last node is front
 		int componentWithVertexIndex = -1;
@@ -251,6 +266,7 @@ void BoruvkaSollins::solve()
 		if(componentWithVertexIndex == -1)
 		{
 			std::cout << "\n!!This should never happen!!\n" << std::endl;
+
 			return;
 		}
 
@@ -293,6 +309,8 @@ void BoruvkaSollins::solve()
 
 		// std::cout << "tp1" << std::endl;
 
+
+
 		//remove component that was merged
 		queue.erase(queue.begin() + componentWithVertexIndex);
 
@@ -301,6 +319,8 @@ void BoruvkaSollins::solve()
 
 		//insert in front
 		queue.insert(queue.begin(), front);
+
+		delete temp;
 	}
 
 		// //temp print queue: UNCOMMENT FOR DEBUG
