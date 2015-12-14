@@ -11,7 +11,9 @@
 //Assignment 4
 //Boruvka's Algorithm 
 
+struct BSedge;
 struct component;
+struct BSsolution;
 class BoruvkaSollins
 {
 	public:
@@ -29,6 +31,10 @@ class BoruvkaSollins
 
 		//initialize a component forrest
 		std::vector<component*> queue;
+
+		//store the edges that lead to a solution
+		std::vector<BSedge> solution;
+
 
 		void printForest();
 };
@@ -88,8 +94,6 @@ struct component
 	{
 		delete edges;
 	}
-
-
 };
 
 BoruvkaSollins::BoruvkaSollins(int nodes, int edges)
@@ -146,28 +150,54 @@ void BoruvkaSollins::load(int (&e)[3])
 	queue[nodeB]->edges->push(edgeB);
 }
 
+void BoruvkaSollins::print()
+{
+
+	std::cout << "BoruvkaSollins's MST:" << std::endl;
+
+	if(numNodes == 1)
+	{
+		std::cout << "(0)" << std::endl;
+		return;
+	}
+
+	int totalweight = 0;
+	for(int i = 0; i < solution.size(); i++)
+	{
+		totalweight+=solution[i].weight;
+		if(solution[i].toNode <= solution[i].FromNode)
+		{
+			std::cout << "(" << solution[i].toNode << ", " << solution[i].FromNode << ")" << std::endl;
+			continue;
+		}
+
+		std::cout << "(" << solution[i].FromNode << ", " << solution[i].toNode << ")" << std::endl;
+	}
+	std::cout << "Totalweight: " << totalweight << std::endl;
+}
+
+
 void BoruvkaSollins::solve()
 {
 
 	while(queue.size() != 1)
 	{
+		// //temp print queue: UNCOMMENT FOR DEBUG
+		// std::cout << "print queue:" << std::endl;
+		// for(int i = 0; i < queue.size(); i++)
+		// {
+		// 	component *print = queue[i];
 
-		//temp print queue:
-		std::cout << "print queue:" << std::endl;
-		for(int i = 0; i < queue.size(); i++)
-		{
-			component *print = queue[i];
+		// 	std::cout << "Component " << i << ": ";
 
-			std::cout << "Component " << i << ": ";
-
-			for(int j = 0; j < print->vertexs.size(); j++)
-			{
-				std::cout << (print->vertexs[j]) << ",    ";
-			}
-			std::cout<<"\n" << std::endl;
-		}
-		std::cout<<"\n" << std::endl;
-		//endtempprint
+		// 	for(int j = 0; j < print->vertexs.size(); j++)
+		// 	{
+		// 		std::cout << (print->vertexs[j]) << ",    ";
+		// 	}
+		// 	std::cout<<"\n" << std::endl;
+		// }
+		// std::cout<<"\n" << std::endl;
+		// //endtempprint
 
 		//back is technically the first element
 		component * front = queue.back();
@@ -175,7 +205,7 @@ void BoruvkaSollins::solve()
 
 		//figure out the node to add to this component
 		int connectingTo = minEdge->toNode;
-		std::cout << "BSedge: " << *minEdge << std::endl;
+		// std::cout << "BSedge: " << *minEdge << std::endl;
 
 		//pop current minimum edge
 		front->edges->pop();
@@ -192,12 +222,19 @@ void BoruvkaSollins::solve()
 			{
 				if(toCheck->vertexs[j] == connectingTo)
 				{
-					std::cout << "Found at " << i << std::endl;
+
+					//store in solution
+					BSedge sol;
+					sol.FromNode = minEdge->FromNode;
+					sol.toNode = connectingTo;
+					sol.weight = minEdge->weight;
+					solution.push_back(sol);
+
+					// std::cout << "Found at " << i << std::endl;
 					componentWithVertexIndex = i;
 
-					std::cout << "Popping off top min edge of connecting" << std::endl;
+					// std::cout << "Popping off top min edge of connecting" << std::endl;
 					toCheck->edges->pop();
-
 
 					found = true;
 					break;
@@ -225,7 +262,7 @@ void BoruvkaSollins::solve()
 		{
 			// std::cout << "i: " << i << std::endl;
 			// std::cout << "temp->vertexs.size()" << temp->vertexs.size()<< std::endl;
-			std::cout << "Pushingback: temp->vertexs[i]: " << temp->vertexs[i] << std::endl;
+			// std::cout << "Pushingback: temp->vertexs[i]: " << temp->vertexs[i] << std::endl;
 			front->vertexs.push_back(temp->vertexs[i]);
 			// i+=1;
 			// std::cout << "i: " << i << std::endl;
@@ -233,26 +270,26 @@ void BoruvkaSollins::solve()
 		}
 
 		//copy edges
-		std::cout << "temp->edges->size()" <<temp->edges->size() << std::endl;
-		std::cout << "temp->edges->top(): " << *(temp->edges->top()) << std::endl;
+		// std::cout << "temp->edges->size()" <<temp->edges->size() << std::endl;
+		// std::cout << "temp->edges->top(): " << *(temp->edges->top()) << std::endl;
 		for(int i = 0; i < temp->edges->size(); i++)
 		{
 			BSedge *top = temp->edges->top();
-			std::cout<< "front size:" << front->edges->size() << std::endl;
+			// std::cout<< "front size:" << front->edges->size() << std::endl;
 			// std::cout << "front top:"  << *(front->edges->top()) << std::endl;
 			front->edges->push(top);
 
-			std::cout << "TP3" << std::endl;
+			// std::cout << "TP3" << std::endl;
 			temp->edges->pop();
 			// std::cout << "temp->edges->top(): " << *(temp->edges->top()) << std::endl;
-			std::cout << "i = " << i << std::endl;
+			// std::cout << "i = " << i << std::endl;
 		}
 
 		//for my eyes only, checking to see if the edges transfered
-		std::cout << "Front edges size: " << front->edges->size() << std::endl;
+		// std::cout << "Front edges size: " << front->edges->size() << std::endl;
 
 		//for my eyes only checking to see if vertexs transfered
-		std::cout << "Front vertexs size: " << front->vertexs.size() << std::endl;
+		// std::cout << "Front vertexs size: " << front->vertexs.size() << std::endl;
 
 		// std::cout << "tp1" << std::endl;
 
@@ -266,20 +303,20 @@ void BoruvkaSollins::solve()
 		queue.insert(queue.begin(), front);
 	}
 
-			//temp print queue:
-		std::cout << "print queue:" << std::endl;
-		for(int i = 0; i < queue.size(); i++)
-		{
-			component *print = queue[i];
+		// //temp print queue: UNCOMMENT FOR DEBUG
+		// std::cout << "print queue:" << std::endl;
+		// for(int i = 0; i < queue.size(); i++)
+		// {
+		// 	component *print = queue[i];
 
-			std::cout << "Component " << i << ": ";
+		// 	std::cout << "Component " << i << ": ";
 
-			for(int j = 0; j < print->vertexs.size(); j++)
-			{
-				std::cout << (print->vertexs[j]) << ",    ";
-			}
-			std::cout<<"\n" << std::endl;
-		}
-		std::cout<<"\n" << std::endl;
-		//endtempprint
+		// 	for(int j = 0; j < print->vertexs.size(); j++)
+		// 	{
+		// 		std::cout << (print->vertexs[j]) << ",    ";
+		// 	}
+		// 	std::cout<<"\n" << std::endl;
+		// }
+		// std::cout<<"\n" << std::endl;
+		// //endtempprint
 }

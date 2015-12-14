@@ -160,6 +160,8 @@ int main()
 	k->print();
 	std::cout << std::endl;
 	p->print();
+	std::cout << std::endl;
+	bs->print();
 
 	delete k;
 }

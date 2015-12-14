@@ -251,7 +251,7 @@ void Prims::load(int (&e)[3])
 void Prims::solve(int &startNode)
 {
 
-	std::cout << "\n\nBeginning Prim's solve\n" << std::endl;
+	// std::cout << "\n\nBeginning Prim's solve\n" << std::endl;
 
 	//if there is one node, it is solved
 	if(numNodes == 1)
