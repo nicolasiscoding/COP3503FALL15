@@ -10,9 +10,6 @@
 //Assignment 4
 //Kruskals Algorithm with non unionjoin implementation
 
-//To-Do:
-//implement Deletes wherever we pop because I commented out the delete in the HBLTs
-
 struct kruskaledge;
 class Kruskals
 {
@@ -75,11 +72,9 @@ struct kruskaledge
 
 Kruskals::Kruskals(int nodes, int edges)
 {
-	// std::cout << "I am Kruskals!" << std::endl;
 	numNodes = nodes;
 	numEdges = edges;
 
-	//for sake of mapping, add 1 so all indicies will be mapped easily
 	forestDir1 = new int*[numNodes];
 	forestDir2 = new int*[numNodes];
 	edgesMinPQ = new hblt<kruskaledge>();
@@ -90,14 +85,11 @@ Kruskals::Kruskals(int nodes, int edges)
 		forestDir2[i] = new int[numNodes];
 
 	}
-	// std::cout << "tp1" << std::endl;
-	// forestDir1[1][1] = 9;
 
 	for(int i = 0; i < numNodes; i++)
 	{
 		for(int j = 0; j < numNodes; j++)
 		{
-			// std::cout << "tp2" << std::endl;
 			forestDir1[i][j] = -1;
 			forestDir2[i][j] = -1;
 		}
@@ -120,7 +112,6 @@ Kruskals::~Kruskals()
 //pass a three parameter array of Node A, Node B, and Undirectred kruskaledge weight respectiely
 void Kruskals::load(int (&paramterArr)[3])
 {
-	//reusing height biased leftist tree from last assignment to impleent min-priority queue
 
 	//if the node is pointing to itself forget it
 	if (paramterArr[0] == paramterArr[1])
@@ -134,8 +125,6 @@ void Kruskals::load(int (&paramterArr)[3])
 	e->nodeB = paramterArr[1];
 
 	edgesMinPQ->push(e);
-	//debug
-	// std::cout<< *edges->top() << std::endl;
 }
 
 void Kruskals::solve()
@@ -143,18 +132,11 @@ void Kruskals::solve()
 
 	if(numNodes == 1)
 	{
-		// std::cout << "Just one node? that's it?" << std::endl;
-		// int passbyreference = 0;
-		// print(passbyreference);
 		return;
 	}
 
 
 	int edgecount = 0;
-	// std::cout << "Edgecount: " << edgecount << std::endl;
-	// std::cout << "numNodes:" << numNodes << std::endl;
-	// std::cout << "numEdges: " << numEdges << std::endl;
-	// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
 
 	while(edgecount != (numNodes-1) && !edgesMinPQ->empty())
 	{
@@ -164,20 +146,16 @@ void Kruskals::solve()
 		//in this case, there is more than one way to get to a certain node (that is non-minimum) OR it is a loop to itself 
 		if(forestDir1[e->nodeA][e->nodeB] != -1 || forestDir2[e->nodeB][e->nodeA] != -1 || e->nodeA == e->nodeB)
 		{
-			//NEED TO IMPLEMENT DELETE
-			// std::cout << "kruskaledge connects node to itself OR there is already a minimum value obtained" << std::endl;
 			edgesMinPQ->pop();
 			continue;
 		}
 
 		//set kruskaledge in forrest
-		// std::cout << "Setting kruskaledge weight: " << e->weight << std::endl; 
 		forestDir1[e->nodeA][e->nodeB] = e->weight;
 		forestDir2[e->nodeB][e->nodeA] = e->weight;
 		edgecount++;
 
 		//if it causes a cycle, remove kruskaledge
-		// printRaw();
 		std::cout << "\n" << std::endl;
 		if(hasCycle(e->nodeA))
 		{
@@ -188,14 +166,6 @@ void Kruskals::solve()
 		}
 		//remove minimum kruskaledge from minPQ
 		edgesMinPQ->pop();
-
-		// printRaw();
-		// std::cout << "Printed!" << std::endl;
-
-		// std::cout << "Edgecount: " << edgecount << std::endl;
-		// std::cout << "numNodes: "<< numNodes << std::endl;
-		// std::cout << "numEdges: " << numEdges << std::endl;
-		// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
 	}
 }
 
@@ -211,8 +181,6 @@ bool Kruskals::hasCycle(int &startingIndex)
 	std::stack<int> * toVisit = new std::stack<int>;
 	toVisit->push(startingIndex);
 
-	// std::cout << toVisit->top() << std::endl;
-
 	bool ret = recursiveHasCycles(toVisit, hasVisited);
 
 	delete hasVisited;
@@ -221,10 +189,9 @@ bool Kruskals::hasCycle(int &startingIndex)
 	return ret;
 }
 
-//initialize DFS search
+//initialize DFS search to check for cycles
 bool Kruskals::recursiveHasCycles(std::stack<int> * toProcess, bool * hasVisited)
 {
-	// std::cout << "\n\nIteration of recursion" << std::endl;
 	if(toProcess->empty())
 	{
 		return false;
@@ -232,14 +199,10 @@ bool Kruskals::recursiveHasCycles(std::stack<int> * toProcess, bool * hasVisited
 
 	int next = toProcess->top();
 	toProcess->pop();
-	// std::cout << "Next: " << next << std::endl;
 	hasVisited[next] = true;
 
 	for(int i = 0; i < numNodes; i++)
 	{
-		//if there is not a connection, and it is not the same node we just came from then check to see if we visited it, otherwise add it to the stack
-		// std::cout << "i: " << i << std::endl; 
-		// std:: cout << "forestDir1[next][i]: " << forestDir1[next][i] << std::endl;
 
 		if(forestDir1[next][i] != -1 && i != next)
 		{
@@ -247,15 +210,12 @@ bool Kruskals::recursiveHasCycles(std::stack<int> * toProcess, bool * hasVisited
 
 			if(hasVisited[check])
 			{
-				// std::cout << "Returning true!" << std::endl;
 				return true;
 			}
 
-			// std::cout << "Pushing value " << check << " into stack." << std::endl;
 			toProcess->push(check);
 		}
 	}
-	//toProcess->pop();
 
 	recursiveHasCycles(toProcess, hasVisited);
 }

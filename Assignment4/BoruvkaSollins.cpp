@@ -211,35 +211,29 @@ void BoruvkaSollins::solve()
 		// std::cout<<"\n" << std::endl;
 		// //endtempprint
 
-		//back is technically the first element
+		//Take from back
 		component * front = queue.back();
 		BSedge * minEdge = front->edges->top();
 
 		//figure out the node to add to this component
 		int connectingTo = minEdge->toNode;
-		// std::cout << "BSedge: " << *minEdge << std::endl;
 
-		//pop current minimum edge
+		//pop current minimum edge 
 		front->edges->pop();
 
-		//case when graph connects to itself because the TA's are being sinister today
-		// if(minEdge->toNode == minEdge->FromNode)
-		// {
-		// 	//need the additional pop
-		// 	front->edges->pop();
-		// 	continue;
-		// }
-
-		//Go to second to last node because last node is front
+		//Figure out where the vertex is in another component
 		int componentWithVertexIndex = -1;
+	
 		bool found = false;
 		for(int i = 0; i < (queue.size()-1); i++)
 		{
 			//make a temp pointer to check for vertex
 			component* toCheck = queue[i];
 
+			//check for vertex
 			for(int j = 0; j < toCheck->vertexs.size(); j++)
 			{
+				//if we find vertex store in solution
 				if(toCheck->vertexs[j] == connectingTo)
 				{
 
@@ -250,10 +244,8 @@ void BoruvkaSollins::solve()
 					sol.weight = minEdge->weight;
 					solution.push_back(sol);
 
-					// std::cout << "Found at " << i << std::endl;
 					componentWithVertexIndex = i;
 
-					// std::cout << "Popping off top min edge of connecting" << std::endl;
 					toCheck->edges->pop();
 
 					found = true;
@@ -271,7 +263,6 @@ void BoruvkaSollins::solve()
 		if(componentWithVertexIndex == -1)
 		{
 			std::cout << "\n!!This should never happen!!\n" << std::endl;
-
 			return;
 		}
 
@@ -281,45 +272,23 @@ void BoruvkaSollins::solve()
 		//copy vertexs
 		for(int i = 0; i < temp->vertexs.size(); i++)
 		{
-			// std::cout << "i: " << i << std::endl;
-			// std::cout << "temp->vertexs.size()" << temp->vertexs.size()<< std::endl;
-			// std::cout << "Pushingback: temp->vertexs[i]: " << temp->vertexs[i] << std::endl;
 			front->vertexs.push_back(temp->vertexs[i]);
-			// i+=1;
-			// std::cout << "i: " << i << std::endl;
-			// temp->vertexs.erase(i = )
 		}
 
 		//copy edges
-		// std::cout << "temp->edges->size()" <<temp->edges->size() << std::endl;
-		// std::cout << "temp->edges->top(): " << *(temp->edges->top()) << std::endl;
 		for(int i = 0; i < temp->edges->size(); i++)
 		{
 			BSedge *top = temp->edges->top();
-			// std::cout<< "front size:" << front->edges->size() << std::endl;
-			// std::cout << "front top:"  << *(front->edges->top()) << std::endl;
 			front->edges->push(top);
 
-			// std::cout << "TP3" << std::endl;
 			temp->edges->pop();
-			// std::cout << "temp->edges->top(): " << *(temp->edges->top()) << std::endl;
-			// std::cout << "i = " << i << std::endl;
 		}
-
-		//for my eyes only, checking to see if the edges transfered
-		// std::cout << "Front edges size: " << front->edges->size() << std::endl;
-
-		//for my eyes only checking to see if vertexs transfered
-		// std::cout << "Front vertexs size: " << front->vertexs.size() << std::endl;
-
-		// std::cout << "tp1" << std::endl;
-
 
 
 		//remove component that was merged
 		queue.erase(queue.begin() + componentWithVertexIndex);
 
-		//pop off back (actually front) and stick in the front (actually the back)
+		//pop off back and stick in the front
 		queue.pop_back();
 
 		//insert in front

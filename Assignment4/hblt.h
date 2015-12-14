@@ -97,7 +97,7 @@ T* hblt<T>::top() const
 	if(size() > 0)
 		return root->data;
 
-	std::cout << "Tree is empty!" <<std::endl;
+	// std::cout << "Tree is empty!" <<std::endl;
 	return 0;
 }			
 
@@ -106,7 +106,7 @@ void hblt<T>::pop()
 {
 	if(size() == 0)
 	{
-		std::cout << "Tree is empty!" << std::endl;
+		// std::cout << "Tree is empty!" << std::endl;
 		return;
 	}	
 
