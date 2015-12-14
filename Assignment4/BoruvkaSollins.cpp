@@ -118,11 +118,15 @@ BoruvkaSollins::~BoruvkaSollins()
 
 void BoruvkaSollins::load(int (&e)[3])
 {
-	// std::cout << "TP4" << std::endl;
 	int weight = e[2];
 	int nodeA = e[0];
 	int nodeB = e[1];	
-	// std::cout << "TP5" << std::endl;
+
+	//case for when TA tries to point a node to itself because they like edge cases
+	if(nodeA == nodeB)
+	{
+		return;
+	}
 
 	BSedge * edgeA = new BSedge();
 	edgeA->weight = weight;
@@ -139,6 +143,7 @@ void BoruvkaSollins::load(int (&e)[3])
 	// std::cout << "queue[nodeA]: " << queue[nodeA] << " queue[nodeB]: " << queue[nodeB] << std::endl;
 
 	//on loading the forest into queue, it will technically be 1 to 1. 
+
 	if(queue[nodeA] == 0)
 	{
 		queue[nodeA] = new component();
@@ -189,22 +194,22 @@ void BoruvkaSollins::solve()
 
 	while(queue.size() != 1)
 	{
-		//temp print queue: UNCOMMENT FOR DEBUG
-		std::cout << "print queue:" << std::endl;
-		for(int i = 0; i < queue.size(); i++)
-		{
-			component *print = queue[i];
+		// //temp print queue: UNCOMMENT FOR DEBUG
+		// std::cout << "print queue:" << std::endl;
+		// for(int i = 0; i < queue.size(); i++)
+		// {
+		// 	component *print = queue[i];
 
-			std::cout << "Component " << i << ": ";
+		// 	std::cout << "Component " << i << ": ";
 
-			for(int j = 0; j < print->vertexs.size(); j++)
-			{
-				std::cout << (print->vertexs[j]) << ",    ";
-			}
-			std::cout<<"\n" << std::endl;
-		}
-		std::cout<<"\n" << std::endl;
-		//endtempprint
+		// 	for(int j = 0; j < print->vertexs.size(); j++)
+		// 	{
+		// 		std::cout << (print->vertexs[j]) << ",    ";
+		// 	}
+		// 	std::cout<<"\n" << std::endl;
+		// }
+		// std::cout<<"\n" << std::endl;
+		// //endtempprint
 
 		//back is technically the first element
 		component * front = queue.back();
@@ -212,7 +217,7 @@ void BoruvkaSollins::solve()
 
 		//figure out the node to add to this component
 		int connectingTo = minEdge->toNode;
-		std::cout << "BSedge: " << *minEdge << std::endl;
+		// std::cout << "BSedge: " << *minEdge << std::endl;
 
 		//pop current minimum edge
 		front->edges->pop();

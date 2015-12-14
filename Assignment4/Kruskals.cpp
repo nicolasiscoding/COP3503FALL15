@@ -121,6 +121,13 @@ Kruskals::~Kruskals()
 void Kruskals::load(int (&paramterArr)[3])
 {
 	//reusing height biased leftist tree from last assignment to impleent min-priority queue
+
+	//if the node is pointing to itself forget it
+	if (paramterArr[0] == paramterArr[1])
+	{
+		return;
+	}
+
 	kruskaledge * e = new kruskaledge();
 	e->weight = paramterArr[2];
 	e->nodeA = paramterArr[0];
@@ -142,12 +149,15 @@ void Kruskals::solve()
 		return;
 	}
 
+
 	int edgecount = 0;
+	// std::cout << "Edgecount: " << edgecount << std::endl;
+	// std::cout << "numNodes:" << numNodes << std::endl;
+	// std::cout << "numEdges: " << numEdges << std::endl;
+	// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
+
 	while(edgecount != (numNodes-1) && !edgesMinPQ->empty())
 	{
-		// std::cout << "Edgecount: " << edgecount << std::endl;
-		// std::cout << "numEdges: " << numEdges << std::endl;
-		// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
 
 		kruskaledge * e = edgesMinPQ->top();
 
@@ -168,8 +178,10 @@ void Kruskals::solve()
 
 		//if it causes a cycle, remove kruskaledge
 		// printRaw();
+		std::cout << "\n" << std::endl;
 		if(hasCycle(e->nodeA))
 		{
+			// std::cout << "hasCycle" << std::endl;
 			forestDir1[e->nodeA][e->nodeB] = -1;
 			forestDir2[e->nodeB][e->nodeA] = -1;
 			edgecount--;
@@ -179,6 +191,11 @@ void Kruskals::solve()
 
 		// printRaw();
 		// std::cout << "Printed!" << std::endl;
+
+		// std::cout << "Edgecount: " << edgecount << std::endl;
+		// std::cout << "numNodes: "<< numNodes << std::endl;
+		// std::cout << "numEdges: " << numEdges << std::endl;
+		// std::cout << "EdgeMINPQ size is: " << edgesMinPQ->size() << std::endl;
 	}
 }
 
@@ -270,70 +287,31 @@ void Kruskals::printRaw()
 	}
 }
 
-//essentially a BFS
 void Kruskals::print()
 {
-	int totalweight = 0;
-
-	bool * hasVisited = new bool[numNodes];
-
-	for(int i = 0; i < numNodes; i++)
-	{
-		hasVisited[i] = false;
-	}
-
-	std::queue<int> * toVisit = new std::queue<int>;
-	toVisit->push(0);
-
-	std::cout << "Kruskals's MST:" << std::endl;
-
+	std::cout << "Kruskal's MST" << std::endl;
 	if(numNodes == 1)
 	{
 		std::cout << "(0)" << std::endl;
 	}
-	else
-	{
-		printBFS(totalweight, toVisit, hasVisited);
-	}
 
-	std::cout << "Totalweight: " << totalweight << std::endl;
-
-	delete hasVisited;
-	delete toVisit;
-}
-
-void Kruskals::printBFS(int &totalweight, std::queue<int> * toProcess, bool* hasVisited)
-{
-	if(toProcess->empty())
-	{
-		return;
-	}
-
-	int val = toProcess->front();
-	toProcess->pop();
-
-	hasVisited[val] = true;
-
+	int totalweight= 0;
 	for(int i = 0; i < numNodes; i++)
 	{
-		//if we find a match
-		if(forestDir1[val][i] != -1 && !hasVisited[i])
+		for(int j = 0; j < numNodes; j++)
 		{
-			toProcess->push(i);
-
-			//printing format
-			if(val <= i)
+			if(forestDir1[i][j] != -1)
 			{
-				std::cout << "(" << val << ", " << i << ")" << std::endl;
-			}
-			else
-			{
-				std::cout << "(" << i << ", " << val << ")" << std::endl;
-			}
+				totalweight+= forestDir1[i][j];
+				if(i <= j)
+				{
+					std::cout << "(" << i << ", " << j << ")" << std::endl;
+					continue;
+				}
 
-			totalweight += forestDir1[val][i];
+				std::cout << "(" << j << ", " << i << ")" << std::endl;
+			}
 		}
 	}
-
-	printBFS(totalweight, toProcess, hasVisited);
+	std::cout << "Totalweight: " << totalweight << std::endl;
 }
