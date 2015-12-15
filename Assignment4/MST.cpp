@@ -10,16 +10,12 @@
 
 
 //Name:				Nicolas Fry
-//UF ID:			
 //GatorID:			nicolascoding
 //Discussion Section: 1085
 //Assignment 4
 //Main implementation
 
 //Made with Love, Top Down Design, and Test Driven Development
-
-//toDo
-//implement destructor and creation of all dynamic memory
 
 int stringToInt(std::string str)
 {

@@ -5,7 +5,6 @@
 //declaring up here because it revoles some issues that are south of this 
 
 //Name:				Nicolas Fry
-//UF ID:			
 //GatorID:			nicolascoding
 //Discussion Section: 1085
 //Assignment 4

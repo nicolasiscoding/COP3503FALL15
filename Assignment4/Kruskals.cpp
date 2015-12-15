@@ -4,7 +4,6 @@
 
 
 //Name:				Nicolas Fry
-//UF ID:			
 //GatorID:			nicolascoding
 //Discussion Section: 1085
 //Assignment 4

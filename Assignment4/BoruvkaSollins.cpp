@@ -5,7 +5,6 @@
 #include <algorithm>
 
 //Name:				Nicolas Fry
-//UF ID:			
 //GatorID:			nicolascoding
 //Discussion Section: 1085
 //Assignment 4
@@ -223,7 +222,7 @@ void BoruvkaSollins::solve()
 
 		//Figure out where the vertex is in another component
 		int componentWithVertexIndex = -1;
-	
+
 		bool found = false;
 		for(int i = 0; i < (queue.size()-1); i++)
 		{
